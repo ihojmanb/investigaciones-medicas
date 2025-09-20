@@ -1,7 +1,7 @@
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ExpenseForm from "@/components/ExpenseForm";
 import NotFound from "@/pages/not-found";
@@ -17,14 +17,8 @@ function HomePage() {
     console.log('Form saved as draft:', data)
   }
   
-  // Pre-populate with some demo data for better UX demonstration
-  const initialData = {
-    patient: "Arce Mercado, Julia",
-    study: "MK-053",
-    visit: "d",
-    visitDate: new Date("2025-09-25"),
-    transportAmount: "45.50"
-  }
+  // Clean slate for testing progress calculation
+  const initialData = {}
   
   return (
     <ExpenseForm 

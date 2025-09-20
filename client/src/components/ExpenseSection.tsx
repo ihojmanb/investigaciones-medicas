@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ChevronDown, ChevronRight, Plus, Upload, CheckCircle2 } from "lucide-react"
 import { useState } from "react"
-import FileUpload from "./FileUpload"
+import FileUpload from "@/components/FileUpload"
 
 interface ExpenseSectionProps {
   title: string

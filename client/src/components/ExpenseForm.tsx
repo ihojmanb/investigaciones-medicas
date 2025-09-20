@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import MandatoryFields from "./MandatoryFields"
 import ExpenseSection from "./ExpenseSection"
 import ProgressIndicator from "./ProgressIndicator"
@@ -37,7 +37,6 @@ interface ExpenseFormProps {
 }
 
 export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFormProps) {
-  const { toast } = useToast()
   
   const [formData, setFormData] = useState<ExpenseFormData>({
     patient: "",
@@ -83,31 +82,31 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
   const optionalSections = [
     { 
       name: "Transporte", 
-      complete: !!(formData.transportReceipt || formData.transportAmount) 
+      complete: !!(formData.transportReceipt || (formData.transportAmount && formData.transportAmount.trim() !== ""))
     },
     { 
       name: "Pasaje 1", 
-      complete: !!(formData.trip1Receipt || formData.trip1Amount) 
+      complete: !!(formData.trip1Receipt || (formData.trip1Amount && formData.trip1Amount.trim() !== ""))
     },
     { 
       name: "Pasaje 2", 
-      complete: !!(formData.trip2Receipt || formData.trip2Amount) 
+      complete: !!(formData.trip2Receipt || (formData.trip2Amount && formData.trip2Amount.trim() !== ""))
     },
     { 
       name: "Pasaje 3", 
-      complete: !!(formData.trip3Receipt || formData.trip3Amount) 
+      complete: !!(formData.trip3Receipt || (formData.trip3Amount && formData.trip3Amount.trim() !== ""))
     },
     { 
       name: "Pasaje 4", 
-      complete: !!(formData.trip4Receipt || formData.trip4Amount) 
+      complete: !!(formData.trip4Receipt || (formData.trip4Amount && formData.trip4Amount.trim() !== ""))
     },
     { 
       name: "Alimentación", 
-      complete: !!(formData.foodReceipt || formData.foodAmount) 
+      complete: !!(formData.foodReceipt || (formData.foodAmount && formData.foodAmount.trim() !== ""))
     },
     { 
       name: "Alojamiento", 
-      complete: !!(formData.accommodationReceipt || formData.accommodationAmount) 
+      complete: !!(formData.accommodationReceipt || (formData.accommodationAmount && formData.accommodationAmount.trim() !== ""))
     },
   ]
   
@@ -116,6 +115,8 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
   const totalProgress = mandatoryComplete 
     ? ((1 + completedOptional) / totalSections) * 100 
     : (completedOptional / totalSections) * 100
+
+  
   
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }))
@@ -123,10 +124,8 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
   
   const handleSubmit = async () => {
     if (!mandatoryComplete) {
-      toast({
-        title: "Campos obligatorios incompletos",
-        description: "Por favor completa todos los campos obligatorios antes de enviar.",
-        variant: "destructive"
+      toast.error("Campos obligatorios incompletos", {
+        description: "Por favor completa todos los campos obligatorios antes de enviar."
       })
       return
     }
@@ -138,15 +137,12 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
       if (onSubmit) {
         await onSubmit(formData)
       }
-      toast({
-        title: "Formulario enviado",
+      toast.success("Formulario enviado", {
         description: "El reembolso de gastos ha sido enviado correctamente."
       })
     } catch (error) {
-      toast({
-        title: "Error al enviar",
-        description: "Hubo un problema al enviar el formulario. Inténtalo de nuevo.",
-        variant: "destructive"
+      toast.error("Error al enviar", {
+        description: "Hubo un problema al enviar el formulario. Inténtalo de nuevo."
       })
     } finally {
       setIsSubmitting(false)
@@ -157,8 +153,7 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
     if (onSave) {
       onSave(formData)
       setLastSaved(new Date())
-      toast({
-        title: "Borrador guardado",
+      toast("Borrador guardado", {
         description: "Los cambios han sido guardados."
       })
     }
