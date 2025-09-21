@@ -13,13 +13,30 @@ export const uploadReceiptFile = async (
   visitName: string
 ): Promise<UploadResult> => {
   try {
-    // Generate deterministic filename (no timestamp) to ensure one file per path
+    // Generate consistent filename that will always be the same for this expense type
+    // This ensures only one file per expense type per visit
     const fileExtension = file.name.split('.').pop()
-    const originalName = file.name.replace(/\.[^/.]+$/, "") // Remove extension
-    const sanitizedOriginalName = originalName.replace(/[^a-zA-Z0-9_-]/g, '_') // Sanitize for storage
-    const fileName = `${trialName}/${patientCode}/${visitName}/${expenseType}/${sanitizedOriginalName}.${fileExtension}`
+    const fileName = `${trialName}/${patientCode}/${visitName}/${expenseType}/receipt.${fileExtension}`
 
-    // Upload file to Supabase storage with upsert to overwrite existing files
+    // First, try to remove any existing files for this expense type
+    try {
+      const { data: existingFiles } = await supabase.storage
+        .from('expenses')
+        .list(`${trialName}/${patientCode}/${visitName}/${expenseType}`)
+      
+      if (existingFiles && existingFiles.length > 0) {
+        // Remove all existing files in this path
+        const filesToRemove = existingFiles.map(f => `${trialName}/${patientCode}/${visitName}/${expenseType}/${f.name}`)
+        await supabase.storage
+          .from('expenses')
+          .remove(filesToRemove)
+      }
+    } catch (cleanupError) {
+      console.warn('Error cleaning up existing files:', cleanupError)
+      // Continue with upload even if cleanup fails
+    }
+
+    // Upload file to Supabase storage
     const { data, error } = await supabase.storage
       .from('expenses')
       .upload(fileName, file, {

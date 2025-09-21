@@ -28,6 +28,7 @@ export interface PatientExpense {
   visit_type: string
   visit_date: string
   created_at: string
+  modified_at: string
 }
 
 export interface ExpenseItem {
@@ -37,4 +38,5 @@ export interface ExpenseItem {
   receipt_url?: string
   cost: number
   created_at: string
+  modified_at: string
 }
