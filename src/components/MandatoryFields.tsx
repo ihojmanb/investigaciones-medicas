@@ -151,6 +151,7 @@ export default function MandatoryFields({
                   mode="single"
                   selected={visitDate}
                   onSelect={onVisitDateChange}
+                  disabled={(date) => date > new Date()}
                   initialFocus
                 />
               </PopoverContent>
