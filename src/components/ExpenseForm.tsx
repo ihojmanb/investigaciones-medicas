@@ -6,6 +6,7 @@ import ExpenseSection from "./ExpenseSection"
 import ProgressIndicator from "./ProgressIndicator"
 import { Save, Send, Clock } from "lucide-react"
 import { saveExpenseToDatabase, ExpenseFormData as ServiceExpenseFormData } from "@/services/expenseService"
+import { updateExpense, ExpenseFormDataForEdit } from "@/services/patientExpenseService"
 import { usePatients } from "@/hooks/usePatients"
 import { useTrials } from "@/hooks/useTrials"
 import { uploadReceiptFile } from "@/utils/fileUpload"
@@ -35,30 +36,69 @@ interface ExpenseFormData {
 }
 
 
-export default function ExpenseForm() {
+interface ExpenseFormProps {
+  mode?: 'create' | 'edit'
+  expenseId?: string
+  initialData?: ExpenseFormDataForEdit
+  onUpdateSuccess?: () => void
+}
+
+export default function ExpenseForm({ 
+  mode = 'create', 
+  expenseId, 
+  initialData, 
+  onUpdateSuccess 
+}: ExpenseFormProps) {
   const { patients } = usePatients()
   const { trials } = useTrials()
   
-  const [formData, setFormData] = useState<ExpenseFormData>({
-    patient: "",
-    trial: "",
-    visit: "",
-    visitDate: undefined,
-    transportReceipt: null,
-    transportAmount: "",
-    trip1Receipt: null,
-    trip1Amount: "",
-    trip2Receipt: null,
-    trip2Amount: "",
-    trip3Receipt: null,
-    trip3Amount: "",
-    trip4Receipt: null,
-    trip4Amount: "",
-    foodReceipt: null,
-    foodAmount: "",
-    accommodationReceipt: null,
-    accommodationAmount: "",
-  })
+  const getInitialFormData = (): ExpenseFormData => {
+    if (mode === 'edit' && initialData) {
+      return {
+        patient: initialData.patient,
+        trial: initialData.trial,
+        visit: initialData.visit,
+        visitDate: initialData.visitDate,
+        transportReceipt: initialData.transportReceipt,
+        transportAmount: initialData.transportAmount,
+        trip1Receipt: initialData.trip1Receipt,
+        trip1Amount: initialData.trip1Amount,
+        trip2Receipt: initialData.trip2Receipt,
+        trip2Amount: initialData.trip2Amount,
+        trip3Receipt: initialData.trip3Receipt,
+        trip3Amount: initialData.trip3Amount,
+        trip4Receipt: initialData.trip4Receipt,
+        trip4Amount: initialData.trip4Amount,
+        foodReceipt: initialData.foodReceipt,
+        foodAmount: initialData.foodAmount,
+        accommodationReceipt: initialData.accommodationReceipt,
+        accommodationAmount: initialData.accommodationAmount,
+      }
+    }
+    
+    return {
+      patient: "",
+      trial: "",
+      visit: "",
+      visitDate: undefined,
+      transportReceipt: null,
+      transportAmount: "",
+      trip1Receipt: null,
+      trip1Amount: "",
+      trip2Receipt: null,
+      trip2Amount: "",
+      trip3Receipt: null,
+      trip3Amount: "",
+      trip4Receipt: null,
+      trip4Amount: "",
+      foodReceipt: null,
+      foodAmount: "",
+      accommodationReceipt: null,
+      accommodationAmount: "",
+    }
+  }
+
+  const [formData, setFormData] = useState<ExpenseFormData>(getInitialFormData())
   
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -185,43 +225,37 @@ export default function ExpenseForm() {
         }
       }
 
-      setUploadProgress("Guardando en base de datos...")
+      setUploadProgress(mode === 'edit' ? "Actualizando..." : "Guardando en base de datos...")
       
-      // Save to database with URLs
-      const result = await saveExpenseToDatabase(processedFormData as ServiceExpenseFormData)
+      let result
+      if (mode === 'edit' && expenseId) {
+        // Update existing expense
+        result = await updateExpense(expenseId, processedFormData as ExpenseFormDataForEdit)
+      } else {
+        // Create new expense
+        result = await saveExpenseToDatabase(processedFormData as ServiceExpenseFormData)
+      }
       
       if (!result.success) {
         throw new Error(result.error)
       }
       
-      toast.success("Formulario enviado", {
-        description: "El reembolso de gastos ha sido guardado correctamente."
+      const successMessage = mode === 'edit' ? "Expense updated successfully" : "Formulario enviado"
+      const successDescription = mode === 'edit' ? 
+        "El reembolso de gastos ha sido actualizado correctamente." :
+        "El reembolso de gastos ha sido guardado correctamente."
+      
+      toast.success(successMessage, {
+        description: successDescription
       })
       
-      // Reset form after successful submission
-      setFormData({
-        patient: "",
-        trial: "",
-        visit: "",
-        visitDate: undefined,
-        transportReceipt: null,
-        transportAmount: "",
-        trip1Receipt: null,
-        trip1Amount: "",
-        trip2Receipt: null,
-        trip2Amount: "",
-        trip3Receipt: null,
-        trip3Amount: "",
-        trip4Receipt: null,
-        trip4Amount: "",
-        foodReceipt: null,
-        foodAmount: "",
-        accommodationReceipt: null,
-        accommodationAmount: "",
-      })
-      
-      // Reset expanded sections
-      setExpandedSections({})
+      if (mode === 'edit' && onUpdateSuccess) {
+        onUpdateSuccess()
+      } else {
+        // Reset form after successful submission (only in create mode)
+        setFormData(getInitialFormData())
+        setExpandedSections({})
+      }
     } catch (error) {
       toast.error("Error al enviar", {
         description: error instanceof Error ? error.message : "Hubo un problema al enviar el formulario. Inténtalo de nuevo."
