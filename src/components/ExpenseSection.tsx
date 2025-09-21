@@ -105,7 +105,7 @@ export default function ExpenseSection({
           </div>
           <div className="space-y-2">
             <Label htmlFor={`amount-${title}`} className="text-sm font-medium">
-              {amountLabel}
+              {amountLabel} {receipt ? <span className="text-red-500">*</span> : ""}
             </Label>
             <Input
               id={`amount-${title}`}
@@ -114,9 +114,13 @@ export default function ExpenseSection({
               min="0"
               value={amount}
               onChange={(e) => onAmountChange(e.target.value)}
-              placeholder="Sin puntos ni comas"
+              placeholder={receipt ? "Monto requerido cuando hay recibo" : "Sin puntos ni comas"}
+              className={receipt && (!amount || amount.trim() === "") ? "border-red-300 focus:border-red-500" : ""}
               data-testid={`input-amount-${title.toLowerCase().replace(/\s+/g, '-')}`}
             />
+            {receipt && (!amount || amount.trim() === "") && (
+              <p className="text-sm text-red-500">El monto es obligatorio cuando se sube un recibo</p>
+            )}
           </div>
         </CardContent>
       )}

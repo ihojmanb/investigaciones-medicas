@@ -21,6 +21,7 @@ interface MandatoryFieldsProps {
   onVisitChange: (value: string) => void
   onVisitDateChange: (date: Date | undefined) => void
   isComplete: boolean
+  mode?: 'create' | 'edit'
 }
 
 export default function MandatoryFields({
@@ -32,7 +33,8 @@ export default function MandatoryFields({
   onTrialChange,
   onVisitChange,
   onVisitDateChange,
-  isComplete
+  isComplete,
+  mode = 'create'
 }: MandatoryFieldsProps) {
   const { patients, loading: patientsLoading } = usePatients()
   const { trials, loading: trialsLoading } = useTrials()
@@ -118,15 +120,17 @@ export default function MandatoryFields({
                 } />
               </SelectTrigger>
               <SelectContent>
-                {eligibleVisits.map((v) => (
-                  <SelectItem 
-                    key={v.id} 
-                    value={v.name}
-                    disabled={v.is_completed}
-                  >
-                    {v.name} {v.is_completed ? "(Completada)" : ""}
-                  </SelectItem>
-                ))}
+                {eligibleVisits
+                  .filter(v => mode === 'edit' ? v.is_completed : true)
+                  .map((v) => (
+                    <SelectItem 
+                      key={v.id} 
+                      value={v.name}
+                      disabled={mode === 'create' && v.is_completed}
+                    >
+                      {v.name} {v.is_completed ? "(Completada)" : ""}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </div>

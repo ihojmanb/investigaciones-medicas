@@ -124,36 +124,50 @@ export default function ExpenseForm({
     return () => clearTimeout(timer)
   }, [formData])
   
+  // Helper function to check if a section is complete with new validation rules
+  const isSectionComplete = (receipt: File | string | null, amount: string) => {
+    const hasReceipt = !!(receipt)
+    const hasAmount = !!(amount && amount.trim() !== "")
+    
+    // If there's a file/receipt, amount becomes mandatory
+    if (hasReceipt) {
+      return hasAmount
+    }
+    
+    // If no receipt, having amount is sufficient
+    return hasAmount
+  }
+
   const mandatoryComplete = !!(formData.patient && formData.trial && formData.visit && formData.visitDate)
   
   const optionalSections = [
     { 
       name: "Transporte", 
-      complete: !!(formData.transportReceipt || (formData.transportAmount && formData.transportAmount.trim() !== ""))
+      complete: isSectionComplete(formData.transportReceipt, formData.transportAmount)
     },
     { 
       name: "Pasaje 1", 
-      complete: !!(formData.trip1Receipt || (formData.trip1Amount && formData.trip1Amount.trim() !== ""))
+      complete: isSectionComplete(formData.trip1Receipt, formData.trip1Amount)
     },
     { 
       name: "Pasaje 2", 
-      complete: !!(formData.trip2Receipt || (formData.trip2Amount && formData.trip2Amount.trim() !== ""))
+      complete: isSectionComplete(formData.trip2Receipt, formData.trip2Amount)
     },
     { 
       name: "Pasaje 3", 
-      complete: !!(formData.trip3Receipt || (formData.trip3Amount && formData.trip3Amount.trim() !== ""))
+      complete: isSectionComplete(formData.trip3Receipt, formData.trip3Amount)
     },
     { 
       name: "Pasaje 4", 
-      complete: !!(formData.trip4Receipt || (formData.trip4Amount && formData.trip4Amount.trim() !== ""))
+      complete: isSectionComplete(formData.trip4Receipt, formData.trip4Amount)
     },
     { 
       name: "Alimentación", 
-      complete: !!(formData.foodReceipt || (formData.foodAmount && formData.foodAmount.trim() !== ""))
+      complete: isSectionComplete(formData.foodReceipt, formData.foodAmount)
     },
     { 
       name: "Alojamiento", 
-      complete: !!(formData.accommodationReceipt || (formData.accommodationAmount && formData.accommodationAmount.trim() !== ""))
+      complete: isSectionComplete(formData.accommodationReceipt, formData.accommodationAmount)
     },
   ]
   
@@ -173,6 +187,31 @@ export default function ExpenseForm({
     if (!mandatoryComplete) {
       toast.error("Campos obligatorios incompletos", {
         description: "Por favor completa todos los campos obligatorios antes de enviar."
+      })
+      return
+    }
+    
+    // Validate that amounts are provided when files are uploaded
+    const fieldsWithMissingAmounts = []
+    const receiptAmountPairs = [
+      { receipt: formData.transportReceipt, amount: formData.transportAmount, name: "Transporte" },
+      { receipt: formData.trip1Receipt, amount: formData.trip1Amount, name: "Pasaje 1" },
+      { receipt: formData.trip2Receipt, amount: formData.trip2Amount, name: "Pasaje 2" },
+      { receipt: formData.trip3Receipt, amount: formData.trip3Amount, name: "Pasaje 3" },
+      { receipt: formData.trip4Receipt, amount: formData.trip4Amount, name: "Pasaje 4" },
+      { receipt: formData.foodReceipt, amount: formData.foodAmount, name: "Alimentación" },
+      { receipt: formData.accommodationReceipt, amount: formData.accommodationAmount, name: "Alojamiento" }
+    ]
+    
+    for (const { receipt, amount, name } of receiptAmountPairs) {
+      if (receipt && (!amount || amount.trim() === "")) {
+        fieldsWithMissingAmounts.push(name)
+      }
+    }
+    
+    if (fieldsWithMissingAmounts.length > 0) {
+      toast.error("Montos requeridos", {
+        description: `Por favor ingresa el monto para: ${fieldsWithMissingAmounts.join(", ")}`
       })
       return
     }
@@ -297,6 +336,7 @@ export default function ExpenseForm({
               onVisitChange={(value) => setFormData(prev => ({ ...prev, visit: value }))}
               onVisitDateChange={(date) => setFormData(prev => ({ ...prev, visitDate: date }))}
               isComplete={mandatoryComplete}
+              mode={mode}
             />
             
             {/* Optional Sections */}
