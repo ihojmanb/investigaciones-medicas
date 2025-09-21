@@ -5,6 +5,7 @@ export interface PatientExpenseWithDetails extends PatientExpense {
   patient: Patient
   trial: Trial
   expense_items: ExpenseItem[]
+  visit_type_info?: VisitType
 }
 
 export interface ExpenseFormDataForEdit {
@@ -42,10 +43,35 @@ export const getPatientExpenses = async (patientId: string): Promise<PatientExpe
       expense_items(*)
     `)
     .eq('patient_id', patientId)
-    .order('visit_date', { ascending: false })
 
   if (error) throw error
-  return data || []
+  
+  // Get all visit types to match with expenses
+  const { data: visitTypes, error: visitTypesError } = await supabase
+    .from('visit_types')
+    .select('*')
+  
+  if (visitTypesError) throw visitTypesError
+  
+  // Add visit type info to each expense
+  const expensesWithVisitInfo = (data || []).map(expense => {
+    const visitTypeInfo = visitTypes?.find(vt => 
+      vt.trial_id === expense.trial_id && vt.name === expense.visit_type
+    )
+    return {
+      ...expense,
+      visit_type_info: visitTypeInfo
+    }
+  })
+  
+  // Sort by visit type order_number only
+  const sortedData = expensesWithVisitInfo.sort((a, b) => {
+    const orderA = a.visit_type_info?.order_number || 999
+    const orderB = b.visit_type_info?.order_number || 999
+    return orderA - orderB
+  })
+  
+  return sortedData
 }
 
 /**
