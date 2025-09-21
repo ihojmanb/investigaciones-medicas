@@ -24,5 +24,5 @@ export default defineConfig({
       deny: ["**/.*"],
     },
   },
-  base: '/',
+  base: process.env.NODE_ENV === 'production' ? '/investigaciones-medicas/' : '/',
 });
