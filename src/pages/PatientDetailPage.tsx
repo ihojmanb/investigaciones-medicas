@@ -69,6 +69,10 @@ export default function PatientDetailPage() {
     return expense.expense_items.length
   }
 
+  const getTotalAmountAllExpenses = () => {
+    return expenses.reduce((total, expense) => total + getTotalAmount(expense), 0)
+  }
+
   // Show loading state while patients are loading
   if (patientsLoading) {
     return (
@@ -157,19 +161,6 @@ export default function PatientDetailPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{expenses.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Submitted expense reports
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Last Activity</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -179,6 +170,21 @@ export default function PatientDetailPage() {
             </div>
             <p className="text-xs text-muted-foreground">
               Last expense submitted
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
+            <Receipt className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              ${getTotalAmountAllExpenses().toLocaleString('es-CL')}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {expenses.length} expense{expenses.length !== 1 ? 's' : ''} submitted
             </p>
           </CardContent>
         </Card>
@@ -215,6 +221,7 @@ export default function PatientDetailPage() {
                   <TableHead>Date</TableHead>
                   <TableHead>Items</TableHead>
                   <TableHead>Total Amount</TableHead>
+                  <TableHead>Last Modified</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -237,7 +244,15 @@ export default function PatientDetailPage() {
                       {getExpenseItemsCount(expense)} items
                     </TableCell>
                     <TableCell>
-                      ${getTotalAmount(expense).toFixed(2)}
+                      ${getTotalAmount(expense).toLocaleString('es-CL')}
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <div>{format(new Date(expense.modified_at || expense.created_at), 'MMM d, yyyy')}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {format(new Date(expense.modified_at || expense.created_at), 'HH:mm')}
+                        </div>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">Submitted</Badge>
