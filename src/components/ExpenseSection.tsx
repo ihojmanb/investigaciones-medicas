@@ -17,6 +17,10 @@ interface ExpenseSectionProps {
   isExpanded: boolean
   onToggle: () => void
   hasData: boolean
+  patientId?: string
+  expenseType?: string
+  trialName?: string
+  visitName?: string
 }
 
 export default function ExpenseSection({
@@ -29,7 +33,11 @@ export default function ExpenseSection({
   onAmountChange,
   isExpanded,
   onToggle,
-  hasData
+  hasData,
+  patientId,
+  expenseType,
+  trialName,
+  visitName
 }: ExpenseSectionProps) {
   const handleQuickAdd = () => {
     console.log(`Quick add triggered for ${title}`)
@@ -89,6 +97,10 @@ export default function ExpenseSection({
               onFileChange={onReceiptChange}
               accept=".pdf,.jpg,.jpeg,.png"
               maxSize={10 * 1024 * 1024}
+              patientId={patientId}
+              expenseType={expenseType || title.toLowerCase().replace(/\s+/g, '-')}
+              trialName={trialName}
+              visitName={visitName}
             />
           </div>
           <div className="space-y-2">

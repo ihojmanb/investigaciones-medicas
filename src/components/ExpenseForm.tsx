@@ -5,11 +5,14 @@ import MandatoryFields from "./MandatoryFields"
 import ExpenseSection from "./ExpenseSection"
 import ProgressIndicator from "./ProgressIndicator"
 import { Save, Send, Clock } from "lucide-react"
+import { saveExpenseToDatabase, ExpenseFormData as ServiceExpenseFormData } from "@/services/expenseService"
+import { usePatients } from "@/hooks/usePatients"
+import { useTrials } from "@/hooks/useTrials"
 
 interface ExpenseFormData {
   // Mandatory fields
   patient: string
-  study: string
+  trial: string
   visit: string
   visitDate: Date | undefined
   
@@ -30,17 +33,14 @@ interface ExpenseFormData {
   accommodationAmount: string
 }
 
-interface ExpenseFormProps {
-  initialData?: Partial<ExpenseFormData>
-  onSubmit?: (data: ExpenseFormData) => void
-  onSave?: (data: ExpenseFormData) => void
-}
 
-export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFormProps) {
+export default function ExpenseForm() {
+  const { patients } = usePatients()
+  const { trials } = useTrials()
   
   const [formData, setFormData] = useState<ExpenseFormData>({
     patient: "",
-    study: "",
+    trial: "",
     visit: "",
     visitDate: undefined,
     transportReceipt: null,
@@ -57,27 +57,31 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
     foodAmount: "",
     accommodationReceipt: null,
     accommodationAmount: "",
-    ...initialData
   })
   
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+
+  // Get names for file upload paths
+  const selectedPatient = patients.find(p => p.id === formData.patient)
+  const selectedTrial = trials.find(t => t.id === formData.trial)
+  const trialName = selectedTrial?.name || ""
+  const visitName = formData.visit || ""
   
   // Auto-save functionality (demo)
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (onSave && (formData.patient || formData.study || formData.visit)) {
-        onSave(formData)
+      if ((formData.patient || formData.trial || formData.visit)) {
         setLastSaved(new Date())
         console.log('Auto-saved form data')
       }
     }, 2000)
     
     return () => clearTimeout(timer)
-  }, [formData, onSave])
+  }, [formData])
   
-  const mandatoryComplete = !!(formData.patient && formData.study && formData.visit && formData.visitDate)
+  const mandatoryComplete = !!(formData.patient && formData.trial && formData.visit && formData.visitDate)
   
   const optionalSections = [
     { 
@@ -133,16 +137,19 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
     setIsSubmitting(true)
     
     try {
-      console.log('Submitting form:', formData)
-      if (onSubmit) {
-        await onSubmit(formData)
+      // Save to database
+      const result = await saveExpenseToDatabase(formData as ServiceExpenseFormData)
+      
+      if (!result.success) {
+        throw new Error(result.error)
       }
+      
       toast.success("Formulario enviado", {
-        description: "El reembolso de gastos ha sido enviado correctamente."
+        description: "El reembolso de gastos ha sido guardado correctamente."
       })
     } catch (error) {
       toast.error("Error al enviar", {
-        description: "Hubo un problema al enviar el formulario. Inténtalo de nuevo."
+        description: error instanceof Error ? error.message : "Hubo un problema al enviar el formulario. Inténtalo de nuevo."
       })
     } finally {
       setIsSubmitting(false)
@@ -150,13 +157,10 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
   }
   
   const handleSave = () => {
-    if (onSave) {
-      onSave(formData)
       setLastSaved(new Date())
       toast("Borrador guardado", {
         description: "Los cambios han sido guardados."
       })
-    }
   }
   
   return (
@@ -175,11 +179,11 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
             {/* Mandatory Fields */}
             <MandatoryFields
               patient={formData.patient}
-              study={formData.study}
+              trial={formData.trial}
               visit={formData.visit}
               visitDate={formData.visitDate}
               onPatientChange={(value) => setFormData(prev => ({ ...prev, patient: value }))}
-              onStudyChange={(value) => setFormData(prev => ({ ...prev, study: value }))}
+              onTrialChange={(value) => setFormData(prev => ({ ...prev, trial: value }))}
               onVisitChange={(value) => setFormData(prev => ({ ...prev, visit: value }))}
               onVisitDateChange={(date) => setFormData(prev => ({ ...prev, visitDate: date }))}
               isComplete={mandatoryComplete}
@@ -200,6 +204,10 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
                 isExpanded={expandedSections.transport || false}
                 onToggle={() => toggleSection('transport')}
                 hasData={!!(formData.transportReceipt || formData.transportAmount)}
+                patientId={formData.patient}
+                expenseType="transport"
+                trialName={trialName}
+                visitName={visitName}
               />
               
               <ExpenseSection
@@ -213,6 +221,10 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
                 isExpanded={expandedSections.trip1 || false}
                 onToggle={() => toggleSection('trip1')}
                 hasData={!!(formData.trip1Receipt || formData.trip1Amount)}
+                patientId={formData.patient}
+                expenseType="trip1"
+                trialName={trialName}
+                visitName={visitName}
               />
               
               <ExpenseSection
@@ -226,6 +238,10 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
                 isExpanded={expandedSections.trip2 || false}
                 onToggle={() => toggleSection('trip2')}
                 hasData={!!(formData.trip2Receipt || formData.trip2Amount)}
+                patientId={formData.patient}
+                expenseType="trip2"
+                trialName={trialName}
+                visitName={visitName}
               />
               
               <ExpenseSection
@@ -239,6 +255,10 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
                 isExpanded={expandedSections.trip3 || false}
                 onToggle={() => toggleSection('trip3')}
                 hasData={!!(formData.trip3Receipt || formData.trip3Amount)}
+                patientId={formData.patient}
+                expenseType="trip3"
+                trialName={trialName}
+                visitName={visitName}
               />
               
               <ExpenseSection
@@ -252,6 +272,10 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
                 isExpanded={expandedSections.trip4 || false}
                 onToggle={() => toggleSection('trip4')}
                 hasData={!!(formData.trip4Receipt || formData.trip4Amount)}
+                patientId={formData.patient}
+                expenseType="trip4"
+                trialName={trialName}
+                visitName={visitName}
               />
               
               <ExpenseSection
@@ -265,6 +289,10 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
                 isExpanded={expandedSections.food || false}
                 onToggle={() => toggleSection('food')}
                 hasData={!!(formData.foodReceipt || formData.foodAmount)}
+                patientId={formData.patient}
+                expenseType="food"
+                trialName={trialName}
+                visitName={visitName}
               />
               
               <ExpenseSection
@@ -278,6 +306,10 @@ export default function ExpenseForm({ initialData, onSubmit, onSave }: ExpenseFo
                 isExpanded={expandedSections.accommodation || false}
                 onToggle={() => toggleSection('accommodation')}
                 hasData={!!(formData.accommodationReceipt || formData.accommodationAmount)}
+                patientId={formData.patient}
+                expenseType="accommodation"
+                trialName={trialName}
+                visitName={visitName}
               />
             </div>
             

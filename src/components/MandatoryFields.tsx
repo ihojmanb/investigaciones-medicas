@@ -1,5 +1,4 @@
 import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CalendarIcon, CheckCircle2 } from "lucide-react"
@@ -7,14 +6,18 @@ import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
+import { usePatients } from "@/hooks/usePatients"
+import { useTrials } from "@/hooks/useTrials"
+import { getEligibleVisitsForPatient, EligibleVisit } from "@/services/visitService"
+import { useEffect, useState } from "react"
 
 interface MandatoryFieldsProps {
   patient: string
-  study: string
+  trial: string
   visit: string
   visitDate: Date | undefined
   onPatientChange: (value: string) => void
-  onStudyChange: (value: string) => void
+  onTrialChange: (value: string) => void
   onVisitChange: (value: string) => void
   onVisitDateChange: (date: Date | undefined) => void
   isComplete: boolean
@@ -22,29 +25,36 @@ interface MandatoryFieldsProps {
 
 export default function MandatoryFields({
   patient,
-  study,
+  trial,
   visit,
   visitDate,
   onPatientChange,
-  onStudyChange,
+  onTrialChange,
   onVisitChange,
   onVisitDateChange,
   isComplete
 }: MandatoryFieldsProps) {
-  // Mock patient data based on the form images
-  const patients = [
-    "Arce Mercado, Julia",
-    "Rodriguez, Maria",
-    "Silva, Carlos",
-    "Lopez, Ana"
-  ]
-  
-  const studies = [
-    "MK-053",
-    "MK-091", 
-    "MK-124",
-    "MK-098"
-  ]
+  const { patients, loading: patientsLoading } = usePatients()
+  const { trials, loading: trialsLoading } = useTrials()
+  const [eligibleVisits, setEligibleVisits] = useState<EligibleVisit[]>([])
+  const [visitsLoading, setVisitsLoading] = useState(false)
+
+  // Load eligible visits when patient and trial are selected
+  useEffect(() => {
+    if (patient && trial) {
+      setVisitsLoading(true)
+      getEligibleVisitsForPatient(patient, trial)
+        .then(setEligibleVisits)
+        .catch(error => {
+          console.error('Error loading eligible visits:', error)
+          setEligibleVisits([])
+        })
+        .finally(() => setVisitsLoading(false))
+    } else {
+      setEligibleVisits([])
+      onVisitChange('') // Clear visit when patient/trial changes
+    }
+  }, [patient, trial, onVisitChange])
 
   return (
     <Card className={`${isComplete ? 'border-primary/50 bg-primary/5' : 'border-destructive/30'}`}>
@@ -60,29 +70,29 @@ export default function MandatoryFields({
             <Label htmlFor="patient" className="text-sm font-medium">
               Paciente *
             </Label>
-            <Select value={patient} onValueChange={onPatientChange}>
+            <Select value={patient} onValueChange={onPatientChange} disabled={patientsLoading}>
               <SelectTrigger data-testid="select-patient">
-                <SelectValue placeholder="Selecciona un paciente" />
+                <SelectValue placeholder={patientsLoading ? "Cargando..." : "Selecciona un paciente"} />
               </SelectTrigger>
               <SelectContent>
                 {patients.map((p) => (
-                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                  <SelectItem key={p.id} value={p.id}>{p.code} - {p.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="study" className="text-sm font-medium">
-              Estudio *
+            <Label htmlFor="trial" className="text-sm font-medium">
+              Ensayo Clínico *
             </Label>
-            <Select value={study} onValueChange={onStudyChange}>
-              <SelectTrigger data-testid="select-study">
-                <SelectValue placeholder="Selecciona un estudio" />
+            <Select value={trial} onValueChange={onTrialChange} disabled={trialsLoading}>
+              <SelectTrigger data-testid="select-trial">
+                <SelectValue placeholder={trialsLoading ? "Cargando..." : "Selecciona un ensayo"} />
               </SelectTrigger>
               <SelectContent>
-                {studies.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                {trials.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>{t.name} - {t.sponsor}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -94,13 +104,31 @@ export default function MandatoryFields({
             <Label htmlFor="visit" className="text-sm font-medium">
               Visita *
             </Label>
-            <Input
-              id="visit"
-              data-testid="input-visit"
-              value={visit}
-              onChange={(e) => onVisitChange(e.target.value)}
-              placeholder="ej: d"
-            />
+            <Select 
+              value={visit} 
+              onValueChange={onVisitChange} 
+              disabled={visitsLoading || !patient || !trial}
+            >
+              <SelectTrigger data-testid="select-visit">
+                <SelectValue placeholder={
+                  visitsLoading ? "Cargando visitas..." : 
+                  !patient || !trial ? "Selecciona paciente y ensayo primero" :
+                  eligibleVisits.length === 0 ? "No hay visitas disponibles" :
+                  "Selecciona una visita"
+                } />
+              </SelectTrigger>
+              <SelectContent>
+                {eligibleVisits.map((v) => (
+                  <SelectItem 
+                    key={v.id} 
+                    value={v.name}
+                    disabled={v.is_completed}
+                  >
+                    {v.name} {v.is_completed ? "(Completada)" : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="space-y-2">
