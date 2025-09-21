@@ -147,6 +147,31 @@ export default function ExpenseForm() {
       toast.success("Formulario enviado", {
         description: "El reembolso de gastos ha sido guardado correctamente."
       })
+      
+      // Reset form after successful submission
+      setFormData({
+        patient: "",
+        trial: "",
+        visit: "",
+        visitDate: undefined,
+        transportReceipt: null,
+        transportAmount: "",
+        trip1Receipt: null,
+        trip1Amount: "",
+        trip2Receipt: null,
+        trip2Amount: "",
+        trip3Receipt: null,
+        trip3Amount: "",
+        trip4Receipt: null,
+        trip4Amount: "",
+        foodReceipt: null,
+        foodAmount: "",
+        accommodationReceipt: null,
+        accommodationAmount: "",
+      })
+      
+      // Reset expanded sections
+      setExpandedSections({})
     } catch (error) {
       toast.error("Error al enviar", {
         description: error instanceof Error ? error.message : "Hubo un problema al enviar el formulario. Inténtalo de nuevo."
