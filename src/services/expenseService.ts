@@ -8,7 +8,7 @@ export interface ExpenseFormData {
   trial: string
   visit: string
   visitDate: Date | undefined
-  transportReceipt: string | null
+  transportReceipt: string | null // Will be string URLs after upload
   transportAmount: string
   trip1Receipt: string | null
   trip1Amount: string

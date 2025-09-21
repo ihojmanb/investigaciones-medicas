@@ -10,14 +10,14 @@ interface ExpenseSectionProps {
   title: string
   receiptLabel: string
   amountLabel: string
-  receipt: string | null
+  receipt: File | string | null
   amount: string
-  onReceiptChange: (receipt: string | null) => void
+  onReceiptChange: (receipt: File | string | null) => void
   onAmountChange: (amount: string) => void
   isExpanded: boolean
   onToggle: () => void
   hasData: boolean
-  patientId?: string
+  patientCode?: string
   expenseType?: string
   trialName?: string
   visitName?: string
@@ -34,7 +34,7 @@ export default function ExpenseSection({
   isExpanded,
   onToggle,
   hasData,
-  patientId,
+  patientCode,
   expenseType,
   trialName,
   visitName
@@ -97,7 +97,7 @@ export default function ExpenseSection({
               onFileChange={onReceiptChange}
               accept=".pdf,.jpg,.jpeg,.png"
               maxSize={10 * 1024 * 1024}
-              patientId={patientId}
+              patientCode={patientCode}
               expenseType={expenseType || title.toLowerCase().replace(/\s+/g, '-')}
               trialName={trialName}
               visitName={visitName}

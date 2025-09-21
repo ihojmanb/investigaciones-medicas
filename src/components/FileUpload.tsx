@@ -6,11 +6,11 @@ import { uploadReceiptFile } from "@/utils/fileUpload"
 import { toast } from "sonner"
 
 interface FileUploadProps {
-  file: string | null
-  onFileChange: (file: string | null) => void
+  file: File | string | null // Can be File object or URL string
+  onFileChange: (file: File | string | null) => void
   accept?: string
   maxSize?: number
-  patientId?: string
+  patientCode?: string
   expenseType?: string
   trialName?: string
   visitName?: string
@@ -21,7 +21,7 @@ export default function FileUpload({
   onFileChange,
   accept = ".pdf,.jpg,.jpeg,.png",
   maxSize = 10 * 1024 * 1024,
-  patientId,
+  patientCode,
   expenseType,
   trialName,
   visitName
@@ -30,10 +30,18 @@ export default function FileUpload({
   const [isUploading, setIsUploading] = useState(false)
   const [originalFileName, setOriginalFileName] = useState<string | null>(null)
 
-  // Extract filename from URL when component loads with existing file
+  // Handle filename display for both File objects and URL strings
   useEffect(() => {
-    if (file && !originalFileName) {
-      // Extract filename from URL path
+    if (!file) {
+      setOriginalFileName(null)
+      return
+    }
+
+    if (file instanceof File) {
+      // File object - use original name
+      setOriginalFileName(file.name)
+    } else if (typeof file === 'string' && !originalFileName) {
+      // URL string - extract filename from URL path
       try {
         const url = new URL(file)
         const pathParts = url.pathname.split('/')
@@ -41,29 +49,17 @@ export default function FileUpload({
         
         if (storageFilename) {
           const decodedFilename = decodeURIComponent(storageFilename)
-          
-          // Check if filename has our new format: originalname_timestamp.ext
-          const match = decodedFilename.match(/^(.+)_\d+\.(.+)$/)
-          if (match) {
-            const [, originalName, extension] = match
-            // Convert sanitized name back (replace underscores with spaces for display)
-            const displayName = originalName.replace(/_/g, ' ')
-            setOriginalFileName(`${displayName}.${extension}`)
-          } else {
-            // Fallback for old format or unexpected format
-            setOriginalFileName(decodedFilename)
-          }
+          // For new format without timestamp: originalname.ext
+          setOriginalFileName(decodedFilename)
         }
       } catch {
         // If URL parsing fails, show generic name
         setOriginalFileName('Archivo existente')
       }
-    } else if (!file) {
-      setOriginalFileName(null)
     }
   }, [file, originalFileName])
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0]
     if (!selectedFile) return
 
@@ -72,43 +68,11 @@ export default function FileUpload({
       return
     }
 
-    if (!patientId || !expenseType) {
-      toast.error('Error al subir archivo', { 
-        description: 'Información del paciente o tipo de gasto no disponible' 
-      })
-      return
-    }
-
-    if (!trialName || !visitName) {
-      toast.error('Error al subir archivo', { 
-        description: 'Debe seleccionar un ensayo clínico y una visita antes de subir archivos' 
-      })
-      return
-    }
-
-    // Store original filename for display
-    setOriginalFileName(selectedFile.name)
-    setIsUploading(true)
-    
-    try {
-      const { url, error } = await uploadReceiptFile(selectedFile, patientId, expenseType, trialName, visitName)
-      
-      if (error) {
-        toast.error('Error al subir archivo', { description: error })
-        setOriginalFileName(null)
-        return
-      }
-      
-      if (url) {
-        onFileChange(url) // Store URL for backend
-        toast.success('Archivo subido correctamente')
-      }
-    } catch (error) {
-      toast.error('Error al subir archivo')
-      setOriginalFileName(null)
-    } finally {
-      setIsUploading(false)
-    }
+    // Store File object directly - upload will happen on form submission
+    onFileChange(selectedFile)
+    toast.success('Archivo seleccionado', {
+      description: 'Se subirá cuando envíes el formulario'
+    })
   }
 
   const handleRemove = () => {

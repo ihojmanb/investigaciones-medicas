@@ -8,6 +8,7 @@ import { Save, Send, Clock } from "lucide-react"
 import { saveExpenseToDatabase, ExpenseFormData as ServiceExpenseFormData } from "@/services/expenseService"
 import { usePatients } from "@/hooks/usePatients"
 import { useTrials } from "@/hooks/useTrials"
+import { uploadReceiptFile } from "@/utils/fileUpload"
 
 interface ExpenseFormData {
   // Mandatory fields
@@ -16,20 +17,20 @@ interface ExpenseFormData {
   visit: string
   visitDate: Date | undefined
   
-  // Optional sections
-  transportReceipt: string | null
+  // Optional sections - can be File objects or URL strings
+  transportReceipt: File | string | null
   transportAmount: string
-  trip1Receipt: string | null
+  trip1Receipt: File | string | null
   trip1Amount: string
-  trip2Receipt: string | null
+  trip2Receipt: File | string | null
   trip2Amount: string
-  trip3Receipt: string | null
+  trip3Receipt: File | string | null
   trip3Amount: string
-  trip4Receipt: string | null
+  trip4Receipt: File | string | null
   trip4Amount: string
-  foodReceipt: string | null
+  foodReceipt: File | string | null
   foodAmount: string
-  accommodationReceipt: string | null
+  accommodationReceipt: File | string | null
   accommodationAmount: string
 }
 
@@ -62,12 +63,14 @@ export default function ExpenseForm() {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [uploadProgress, setUploadProgress] = useState<string>("")
 
   // Get names for file upload paths
   const selectedPatient = patients.find(p => p.id === formData.patient)
   const selectedTrial = trials.find(t => t.id === formData.trial)
   const trialName = selectedTrial?.name || ""
   const visitName = formData.visit || ""
+  const patientCode = selectedPatient?.code || ""
   
   // Auto-save functionality (demo)
   useEffect(() => {
@@ -135,10 +138,57 @@ export default function ExpenseForm() {
     }
     
     setIsSubmitting(true)
+    setUploadProgress("")
     
     try {
-      // Save to database
-      const result = await saveExpenseToDatabase(formData as ServiceExpenseFormData)
+      // Upload files first with progress indication
+      const processedFormData = { ...formData }
+      const fileUploads = []
+
+      // Collect all File objects that need uploading
+      const fileFields = [
+        { field: 'transportReceipt', type: 'transport' },
+        { field: 'trip1Receipt', type: 'trip1' },
+        { field: 'trip2Receipt', type: 'trip2' },
+        { field: 'trip3Receipt', type: 'trip3' },
+        { field: 'trip4Receipt', type: 'trip4' },
+        { field: 'foodReceipt', type: 'food' },
+        { field: 'accommodationReceipt', type: 'accommodation' }
+      ]
+
+      for (const { field, type } of fileFields) {
+        const fieldValue = formData[field as keyof ExpenseFormData]
+        if (fieldValue instanceof File) {
+          fileUploads.push({ field, type, file: fieldValue })
+        }
+      }
+
+      // Upload files with progress
+      if (fileUploads.length > 0) {
+        const patientCode = selectedPatient?.code
+        if (!patientCode || !trialName || !visitName) {
+          throw new Error('Información incompleta para subir archivos')
+        }
+
+        for (let i = 0; i < fileUploads.length; i++) {
+          const { field, type, file } = fileUploads[i]
+          setUploadProgress(`Subiendo archivos (${i + 1}/${fileUploads.length})...`)
+          
+          const { url, error } = await uploadReceiptFile(file, patientCode, type, trialName, visitName)
+          
+          if (error) {
+            throw new Error(`Error subiendo archivo ${file.name}: ${error}`)
+          }
+          
+          // Replace File object with URL in processed form data
+          processedFormData[field as keyof ExpenseFormData] = url as any
+        }
+      }
+
+      setUploadProgress("Guardando en base de datos...")
+      
+      // Save to database with URLs
+      const result = await saveExpenseToDatabase(processedFormData as ServiceExpenseFormData)
       
       if (!result.success) {
         throw new Error(result.error)
@@ -178,6 +228,7 @@ export default function ExpenseForm() {
       })
     } finally {
       setIsSubmitting(false)
+      setUploadProgress("")
     }
   }
   
@@ -229,7 +280,7 @@ export default function ExpenseForm() {
                 isExpanded={expandedSections.transport || false}
                 onToggle={() => toggleSection('transport')}
                 hasData={!!(formData.transportReceipt || formData.transportAmount)}
-                patientId={formData.patient}
+                patientCode={patientCode}
                 expenseType="transport"
                 trialName={trialName}
                 visitName={visitName}
@@ -246,7 +297,7 @@ export default function ExpenseForm() {
                 isExpanded={expandedSections.trip1 || false}
                 onToggle={() => toggleSection('trip1')}
                 hasData={!!(formData.trip1Receipt || formData.trip1Amount)}
-                patientId={formData.patient}
+                patientCode={patientCode}
                 expenseType="trip1"
                 trialName={trialName}
                 visitName={visitName}
@@ -263,7 +314,7 @@ export default function ExpenseForm() {
                 isExpanded={expandedSections.trip2 || false}
                 onToggle={() => toggleSection('trip2')}
                 hasData={!!(formData.trip2Receipt || formData.trip2Amount)}
-                patientId={formData.patient}
+                patientCode={patientCode}
                 expenseType="trip2"
                 trialName={trialName}
                 visitName={visitName}
@@ -280,7 +331,7 @@ export default function ExpenseForm() {
                 isExpanded={expandedSections.trip3 || false}
                 onToggle={() => toggleSection('trip3')}
                 hasData={!!(formData.trip3Receipt || formData.trip3Amount)}
-                patientId={formData.patient}
+                patientCode={patientCode}
                 expenseType="trip3"
                 trialName={trialName}
                 visitName={visitName}
@@ -297,7 +348,7 @@ export default function ExpenseForm() {
                 isExpanded={expandedSections.trip4 || false}
                 onToggle={() => toggleSection('trip4')}
                 hasData={!!(formData.trip4Receipt || formData.trip4Amount)}
-                patientId={formData.patient}
+                patientCode={patientCode}
                 expenseType="trip4"
                 trialName={trialName}
                 visitName={visitName}
@@ -314,7 +365,7 @@ export default function ExpenseForm() {
                 isExpanded={expandedSections.food || false}
                 onToggle={() => toggleSection('food')}
                 hasData={!!(formData.foodReceipt || formData.foodAmount)}
-                patientId={formData.patient}
+                patientCode={patientCode}
                 expenseType="food"
                 trialName={trialName}
                 visitName={visitName}
@@ -331,7 +382,7 @@ export default function ExpenseForm() {
                 isExpanded={expandedSections.accommodation || false}
                 onToggle={() => toggleSection('accommodation')}
                 hasData={!!(formData.accommodationReceipt || formData.accommodationAmount)}
-                patientId={formData.patient}
+                patientCode={patientCode}
                 expenseType="accommodation"
                 trialName={trialName}
                 visitName={visitName}
@@ -365,7 +416,7 @@ export default function ExpenseForm() {
                   data-testid="button-submit"
                 >
                   <Send className="h-4 w-4 mr-2" />
-                  {isSubmitting ? "Enviando..." : "Enviar"}
+                  {isSubmitting ? (uploadProgress || "Enviando...") : "Enviar"}
                 </Button>
               </div>
             </div>

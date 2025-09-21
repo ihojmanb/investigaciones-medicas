@@ -7,25 +7,24 @@ export interface UploadResult {
 
 export const uploadReceiptFile = async (
   file: File, 
-  patientId: string, 
+  patientCode: string, 
   expenseType: string,
   trialName: string,
   visitName: string
 ): Promise<UploadResult> => {
   try {
-    // Generate a unique filename with new path structure, preserving original name
-    const timestamp = Date.now()
+    // Generate deterministic filename (no timestamp) to ensure one file per path
     const fileExtension = file.name.split('.').pop()
     const originalName = file.name.replace(/\.[^/.]+$/, "") // Remove extension
     const sanitizedOriginalName = originalName.replace(/[^a-zA-Z0-9_-]/g, '_') // Sanitize for storage
-    const fileName = `${trialName}/${patientId}/${visitName}/${expenseType}/${sanitizedOriginalName}_${timestamp}.${fileExtension}`
+    const fileName = `${trialName}/${patientCode}/${visitName}/${expenseType}/${sanitizedOriginalName}.${fileExtension}`
 
-    // Upload file to Supabase storage
+    // Upload file to Supabase storage with upsert to overwrite existing files
     const { data, error } = await supabase.storage
       .from('expenses')
       .upload(fileName, file, {
         cacheControl: '3600',
-        upsert: false
+        upsert: true // This enables overwriting existing files
       })
 
     if (error) {
