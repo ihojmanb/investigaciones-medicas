@@ -34,10 +34,10 @@ import { format } from "date-fns"
 
 export default function PatientDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const { patients } = usePatients()
+  const { patients, loading: patientsLoading } = usePatients()
   const { trials } = useTrials()
   const [expenses, setExpenses] = useState<PatientExpenseWithDetails[]>([])
-  const [loading, setLoading] = useState(true)
+  const [expensesLoading, setExpensesLoading] = useState(true)
 
   const patient = patients.find(p => p.id === id)
 
@@ -51,13 +51,13 @@ export default function PatientDetailPage() {
     if (!id) return
     
     try {
-      setLoading(true)
+      setExpensesLoading(true)
       const data = await getPatientExpenses(id)
       setExpenses(data)
     } catch (error) {
       console.error('Error loading expenses:', error)
     } finally {
-      setLoading(false)
+      setExpensesLoading(false)
     }
   }
 
@@ -69,7 +69,8 @@ export default function PatientDetailPage() {
     return expense.expense_items.length
   }
 
-  if (!patient) {
+  // Show loading state while patients are loading
+  if (patientsLoading) {
     return (
       <div className="space-y-6">
         <div className="flex items-center space-x-4">
@@ -82,7 +83,30 @@ export default function PatientDetailPage() {
         </div>
         
         <div className="text-center py-12">
-          <p className="text-gray-500">Patient not found</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading patient details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show not found only after loading is complete
+  if (!patientsLoading && !patient) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center space-x-4">
+          <Button variant="ghost" asChild>
+            <Link to="/patients">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Patients
+            </Link>
+          </Button>
+        </div>
+        
+        <div className="text-center py-12">
+          <User className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+          <p className="text-gray-500 mb-2">Patient not found</p>
+          <p className="text-sm text-gray-400">The patient you're looking for doesn't exist or has been removed.</p>
         </div>
       </div>
     )
@@ -102,9 +126,9 @@ export default function PatientDetailPage() {
           
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              {patient.name}
+              {patient?.name}
             </h1>
-            <p className="text-gray-600">Patient Code: {patient.code}</p>
+            <p className="text-gray-600">Patient Code: {patient?.code}</p>
           </div>
         </div>
 
@@ -124,9 +148,9 @@ export default function PatientDetailPage() {
             <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{patient.code}</div>
+            <div className="text-2xl font-bold">{patient?.code}</div>
             <p className="text-xs text-muted-foreground">
-              {patient.name}
+              {patient?.name}
             </p>
           </CardContent>
         </Card>
@@ -166,8 +190,9 @@ export default function PatientDetailPage() {
           <CardTitle>Expense History</CardTitle>
         </CardHeader>
         <CardContent>
-          {loading ? (
+          {expensesLoading ? (
             <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-4"></div>
               <p className="text-gray-500">Loading expenses...</p>
             </div>
           ) : expenses.length === 0 ? (
