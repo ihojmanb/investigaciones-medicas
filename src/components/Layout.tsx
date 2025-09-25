@@ -1,8 +1,10 @@
 import { Link, useLocation } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
-import { Receipt, Users, FlaskConical, BarChart3, Menu, X } from "lucide-react"
+import { Receipt, Users, FlaskConical, BarChart3, Menu, X, LogOut, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/contexts/AuthContext"
+import { toast } from "sonner"
 
 interface LayoutProps {
   children: React.ReactNode
@@ -33,11 +35,22 @@ const navigation = [
 
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation()
+  const { user, signOut } = useAuth()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     // Initialize from localStorage, default to false
     const saved = localStorage.getItem('sidebar-collapsed')
     return saved ? JSON.parse(saved) : false
   })
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      toast.success("Signed out successfully")
+    } catch (error) {
+      toast.error("Error signing out")
+      console.error("Sign out error:", error)
+    }
+  }
 
   // Persist sidebar state to localStorage
   useEffect(() => {
@@ -110,17 +123,58 @@ export default function Layout({ children }: LayoutProps) {
           })}
         </nav>
 
-        {/* Footer */}
+        {/* User section */}
         <div className="p-4 border-t border-gray-200">
-          {!sidebarCollapsed ? (
-            <p className="text-xs text-gray-500 text-center">
-              v1.0.0
-            </p>
-          ) : (
-            <div className="flex justify-center">
-              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-            </div>
-          )}
+          <div className="flex items-center justify-between">
+            {!sidebarCollapsed ? (
+              <>
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-primary-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {user?.email || "User"}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="p-2"
+                  title="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </>
+            ) : (
+              <div className="flex justify-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="p-2"
+                  title="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+          
+          {/* Version */}
+          <div className="mt-2">
+            {!sidebarCollapsed ? (
+              <p className="text-xs text-gray-500 text-center">
+                v1.0.0
+              </p>
+            ) : (
+              <div className="flex justify-center mt-2">
+                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
