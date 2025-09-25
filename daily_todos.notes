@@ -52,20 +52,9 @@ Patient View
 Expense History table
 - [x] show last time modified
 - [x] show visits by their order
+[ ] when Submit First Expense from the patient view, the new expense should inherit the patient
+[ ] show patient name
 - [ ] view details of each receipt for each expense
-
-
-
-Submitted expenses table
-- [ ] shows expenses table with
-    - [ ] patient number
-    - [ ] patient name
-    - [ ] trial name
-    - [ ] visit
-    - [ ] total amount
-    - [ ] status
-    - [ ] edit button 
-- [ ] 
 
 Trials
 [x] - add active boolean column ✅

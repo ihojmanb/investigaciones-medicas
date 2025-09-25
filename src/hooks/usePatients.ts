@@ -14,7 +14,8 @@ export function usePatients() {
         const { data, error } = await supabase
           .from('patients')
           .select('*')
-          .order('name')
+          .order('first_surname')
+          .order('first_name')
 
         if (error) throw error
 

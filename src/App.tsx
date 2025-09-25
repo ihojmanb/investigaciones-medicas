@@ -8,6 +8,8 @@ import ExpenseFormPage from "@/pages/ExpenseFormPage";
 import ExpenseEditPage from "@/pages/ExpenseEditPage";
 import PatientsPage from "@/pages/PatientsPage";
 import PatientDetailPage from "@/pages/PatientDetailPage";
+import PatientFormPage from "@/pages/PatientFormPage";
+import PatientEditPage from "@/pages/PatientEditPage";
 import TrialsPage from "@/pages/TrialsPage";
 import TrialFormPage from "@/pages/TrialFormPage";
 import TrialEditPage from "@/pages/TrialEditPage";
@@ -25,7 +27,9 @@ function App() {
             <Route path="/expenses/new" element={<Layout><ExpenseFormPage /></Layout>} />
             <Route path="/expenses/:id/edit" element={<Layout><ExpenseEditPage /></Layout>} />
             <Route path="/patients" element={<Layout><PatientsPage /></Layout>} />
+            <Route path="/patients/new" element={<Layout><PatientFormPage /></Layout>} />
             <Route path="/patients/:id" element={<Layout><PatientDetailPage /></Layout>} />
+            <Route path="/patients/:id/edit" element={<Layout><PatientEditPage /></Layout>} />
             <Route path="/trials" element={<Layout><TrialsPage /></Layout>} />
             <Route path="/trials/new" element={<Layout><TrialFormPage /></Layout>} />
             <Route path="/trials/:id/edit" element={<Layout><TrialEditPage /></Layout>} />

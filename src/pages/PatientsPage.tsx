@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
 import { 
   Table, 
   TableBody, 
@@ -19,7 +20,9 @@ import { Badge } from "@/components/ui/badge"
 import { Search, MoreHorizontal, Eye, Edit, Plus } from "lucide-react"
 import { usePatients } from "@/hooks/usePatients"
 import { useTrials } from "@/hooks/useTrials"
+import { formatPatientName, updatePatientStatus } from "@/services/patientService"
 import { Link } from "react-router-dom"
+import { toast } from "sonner"
 
 export default function PatientsPage() {
   const { patients, loading: patientsLoading } = usePatients()
@@ -27,16 +30,33 @@ export default function PatientsPage() {
   const [searchTerm, setSearchTerm] = useState("")
 
   // Filter patients based on search term
-  const filteredPatients = patients.filter(patient =>
-    patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.code.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredPatients = patients.filter(patient => {
+    const fullName = formatPatientName(patient).toLowerCase()
+    const searchLower = searchTerm.toLowerCase()
+    return fullName.includes(searchLower) || 
+           patient.code.toLowerCase().includes(searchLower) ||
+           patient.first_name.toLowerCase().includes(searchLower) ||
+           patient.first_surname.toLowerCase().includes(searchLower)
+  })
 
   // Helper function to get trial names (in real app, you'd have patient-trial relationships)
   const getPatientTrials = (patientId: string) => {
     // Mock: assume patients are in first trial for now
     // In real implementation, you'd query patient_trials table
     return trials.slice(0, Math.floor(Math.random() * 2) + 1)
+  }
+
+  // Handle status toggle
+  const handleStatusToggle = async (patientId: string, newStatus: 'active' | 'inactive') => {
+    try {
+      await updatePatientStatus(patientId, newStatus)
+      toast.success(`Patient status updated to ${newStatus}`)
+      // Refresh the patients list - in a real app you'd use react-query or similar
+      window.location.reload()
+    } catch (error) {
+      toast.error('Failed to update patient status')
+      console.error('Error updating patient status:', error)
+    }
   }
 
   if (patientsLoading) {
@@ -90,6 +110,7 @@ export default function PatientsPage() {
             <TableRow>
               <TableHead>Patient Code</TableHead>
               <TableHead>Name</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Active Trials</TableHead>
               <TableHead>Last Activity</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -98,7 +119,7 @@ export default function PatientsPage() {
           <TableBody>
             {filteredPatients.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-12">
+                <TableCell colSpan={6} className="text-center py-12">
                   <p className="text-gray-500">
                     {searchTerm ? "No patients found matching your search." : "No patients found."}
                   </p>
@@ -111,7 +132,21 @@ export default function PatientsPage() {
                 return (
                   <TableRow key={patient.id}>
                     <TableCell className="font-medium">{patient.code}</TableCell>
-                    <TableCell>{patient.name}</TableCell>
+                    <TableCell>{formatPatientName(patient)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          checked={patient.status === 'active'}
+                          onCheckedChange={(checked) => 
+                            handleStatusToggle(patient.id, checked ? 'active' : 'inactive')
+                          }
+                          size="sm"
+                        />
+                        <span className="text-sm text-gray-600 capitalize">
+                          {patient.status}
+                        </span>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {patientTrials.map((trial) => (

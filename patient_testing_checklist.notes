@@ -1,0 +1,144 @@
+# Patient Management Manual Testing Checklist
+
+## Database Migration Testing
+- [ ] Run simple_patient_table_update.sql migration
+- [ ] Verify new columns exist: first_name, second_name, first_surname, second_surname, status
+- [ ] Confirm status constraint works (only 'active' or 'inactive' allowed)
+- [ ] Check indexes were created properly
+- [ ] Verify existing dummy data has default values
+
+## Patient Form - Create New Patient (/patients/new)
+- [ ] Navigation: "Add Patient" button from patients list works
+- [ ] Form loads with all fields visible
+- [ ] Required field validation:
+  - [ ] Patient code is required (shows error if empty)
+  - [ ] First name is required (shows error if empty)  
+  - [ ] First surname is required (shows error if empty)
+- [ ] Optional fields work:
+  - [ ] Second name can be left empty
+  - [ ] Second surname can be left empty
+- [ ] Status toggle:
+  - [ ] Defaults to "active" (switch ON)
+  - [ ] Can toggle to "inactive" (switch OFF)
+- [ ] Form submission:
+  - [ ] Valid data saves successfully
+  - [ ] Success toast appears
+  - [ ] Redirects to patients list after save
+  - [ ] New patient appears in list
+- [ ] Cancel button returns to patients list
+
+## Patient Form - Edit Existing Patient (/patients/:id/edit)
+- [ ] Navigation: "Edit Patient" from actions dropdown works
+- [ ] Form pre-populates with existing patient data
+- [ ] All fields are editable
+- [ ] Status toggle reflects current patient status
+- [ ] Form validation works same as create form
+- [ ] Save updates patient successfully
+- [ ] Success toast appears
+- [ ] Returns to patients list after save
+- [ ] Changes are visible in patients table
+- [ ] Cancel button returns to patients list without saving
+
+## Patients Table Display (/patients)
+- [ ] Table shows all patients
+- [ ] Columns display correctly:
+  - [ ] Patient Code
+  - [ ] Name formatted as "{first_surname} {second_surname}, {first_name} {second_name}"
+  - [ ] Status with toggle switch
+  - [ ] Active Trials (mock data)
+  - [ ] Last Activity (mock data)
+  - [ ] Actions dropdown
+- [ ] Status toggle functionality:
+  - [ ] Switch shows current status (ON = active, OFF = inactive)
+  - [ ] Clicking switch updates status immediately
+  - [ ] Success toast appears on status change
+  - [ ] Status text updates (active/inactive)
+  - [ ] Page refreshes to show change
+- [ ] Actions dropdown:
+  - [ ] "View Details" link works (goes to /patients/:id)
+  - [ ] "Edit Patient" link works (goes to /patients/:id/edit)
+
+## Search Functionality
+- [ ] Search box appears and is functional
+- [ ] Search works by:
+  - [ ] Patient code (full or partial)
+  - [ ] First name (full or partial)
+  - [ ] First surname (full or partial)
+  - [ ] Full formatted name display
+- [ ] Search is case-insensitive
+- [ ] Empty search shows all patients
+- [ ] No results message shows when no matches
+
+## Name Display Format Testing
+Test with various name combinations:
+- [ ] First + First Surname only: "Doe, John"
+- [ ] First + Second + First Surname: "Doe, John Michael"  
+- [ ] First + First + Second Surname: "Doe Smith, John"
+- [ ] All four fields: "Doe Smith, John Michael"
+- [ ] Special characters in names work properly
+- [ ] Long names don't break layout
+
+## Navigation & Routing
+- [ ] /patients loads patients list
+- [ ] /patients/new loads create form
+- [ ] /patients/:id loads patient detail (if implemented)
+- [ ] /patients/:id/edit loads edit form
+- [ ] Invalid patient ID shows error
+- [ ] Back buttons work from all forms
+- [ ] Browser back/forward works properly
+
+## Error Handling
+- [ ] Database connection errors are handled gracefully
+- [ ] Invalid patient ID in edit form shows error
+- [ ] Duplicate patient codes are handled (if constraint exists)
+- [ ] Network errors show appropriate messages
+- [ ] Form validation errors are user-friendly
+
+## Data Persistence
+- [ ] New patients persist after browser refresh
+- [ ] Patient edits persist after browser refresh
+- [ ] Status changes persist after browser refresh
+- [ ] Search state is reset on page load (expected behavior)
+
+## UI/UX Testing
+- [ ] Forms are responsive on mobile
+- [ ] Table is responsive/scrollable on mobile
+- [ ] Loading states appear appropriately
+- [ ] Success/error toasts are readable
+- [ ] Form layout is intuitive
+- [ ] Switch component is accessible
+- [ ] Keyboard navigation works
+
+## Integration Testing
+- [ ] Patient list refreshes after creating new patient
+- [ ] Patient list updates after editing patient
+- [ ] Status changes reflect immediately in table
+- [ ] Search continues to work after CRUD operations
+- [ ] Navigation between pages maintains context
+
+## Performance Testing
+- [ ] Large patient lists load reasonably fast
+- [ ] Search is responsive with many patients
+- [ ] Status toggle is immediate (no lag)
+- [ ] Form submissions don't cause delays
+
+## Browser Compatibility
+- [ ] Chrome: All functionality works
+- [ ] Firefox: All functionality works  
+- [ ] Safari: All functionality works
+- [ ] Edge: All functionality works
+
+## Notes Section
+```
+Test Data Examples:
+- Simple: John Doe
+- Complex: María José García-López  
+- Edge case: Jean-Baptiste de la Cruz-Martinez
+- Special chars: José María O'Connor-Smith
+
+Common Issues to Watch:
+- Name formatting edge cases
+- Status toggle race conditions
+- Form validation bypass attempts
+- Navigation state issues
+```

@@ -1,8 +1,13 @@
 export interface Patient {
   id: string
   code: string
-  name: string
+  first_name: string
+  second_name?: string
+  first_surname: string
+  second_surname?: string
+  status: 'active' | 'inactive'
   created_at: string
+  modified_at: string
 }
 
 export interface Trial {
