@@ -1,0 +1,296 @@
+# RBAC (Role-Based Access Control) Manual Testing Checklist
+
+## Prerequisites
+[√] Database migrations have been run (rbac_01, rbac_02, rbac_03)
+- [ ] AuthProvider is wrapped around the app
+- [ ] At least one admin user exists in the system
+- [ ] Test operator users are available
+
+## Authentication System Testing
+
+### User Registration & Login
+- [ ] User can register with email/password (if enabled)
+- [ ] User can log in with valid credentials
+- [ ] User cannot log in with invalid credentials
+- [ ] User receives appropriate error messages for failed login
+- [ ] Session persists across browser refresh
+- [ ] User can log out successfully
+- [ ] Password reset functionality works (if implemented)
+
+### Profile Creation
+- [ ] User profile is automatically created on first login
+- [ ] New users are assigned "operator" role by default
+- [ ] User profile contains all required fields (email, role, etc.)
+- [ ] Last login timestamp updates correctly
+
+## Role-Based UI Testing
+
+### Admin User Testing
+- [ ] Admin sees all navigation items (Patients, Expenses, Trials, Reports, Admin)
+- [ ] Admin can access all pages without restrictions
+- [ ] Admin section is visible and accessible
+- [ ] User management interface loads correctly
+- [ ] Permission management interface loads correctly
+- [ ] Audit log interface loads correctly
+- [ ] Impersonation panel is visible and functional
+
+### Operator User Testing
+- [ ] Operator sees limited navigation items (no Admin, no Reports by default)
+- [ ] Operator cannot access /admin route (gets redirected to /unauthorized)
+- [ ] Operator cannot access /reports route (gets redirected to /unauthorized)
+- [ ] Financial data sections are hidden (trial services, service allocations)
+- [ ] Appropriate "Access Denied" messages show for restricted content
+
+## Permission System Testing
+
+### Patient Management Permissions
+- [ ] Admin can create patients
+- [ ] Admin can view patients list
+- [ ] Admin can edit existing patients
+- [ ] Admin can delete patients (if permission exists)
+- [ ] Operator without permissions cannot create patients
+- [ ] Operator without permissions cannot edit patients
+- [ ] Operator with granted permissions can perform allowed actions
+
+### Expense Management Permissions
+- [ ] Users with expense:create can submit new expenses
+- [ ] Users with expense:read can view expense reports
+- [ ] Users with expense:update can edit expense reports
+- [ ] Users without permissions see appropriate access denied messages
+
+### Trial Management Permissions
+- [ ] Users with trial permissions can access trials section
+- [ ] Financial data (services, allocations) only visible to users with specific permissions
+- [ ] Trial fee schedules hidden from operators by default
+
+### Reports & Analytics Permissions
+- [ ] Only admin can access reports by default
+- [ ] Reports section completely hidden from unauthorized users
+- [ ] Direct URL access to reports is blocked for unauthorized users
+
+## Admin Interface Testing
+
+### User Management
+- [ ] Admin can view list of all users
+- [ ] Admin can see user roles, status, and last login
+- [ ] Admin can change user roles via dropdown
+- [ ] Admin can activate/deactivate users via toggle
+- [ ] Role changes take effect immediately
+- [ ] Status changes take effect immediately
+- [ ] User search functionality works
+- [ ] User list updates after changes
+
+### Permission Management
+- [ ] Admin can view all available permissions
+- [ ] Permissions are grouped by category correctly
+- [ ] Admin-only permissions are clearly marked
+- [ ] Permission descriptions are accurate and helpful
+
+### Audit Log
+- [ ] All permission changes are logged
+- [ ] All role changes are logged
+- [ ] All impersonation events are logged
+- [ ] Audit log shows timestamps, users, and actions correctly
+- [ ] Audit log can be filtered by time range
+- [ ] Audit log can be filtered by action type
+- [ ] Audit log can be exported to CSV
+
+## Impersonation Testing
+
+### Admin Impersonation Capabilities
+- [ ] Admin can see impersonation panel
+- [ ] Admin can select different roles to impersonate
+- [ ] Impersonation changes UI to match selected role
+- [ ] Navigation updates correctly during impersonation
+- [ ] Impersonated role permissions are enforced
+- [ ] Admin can stop impersonation and return to admin view
+- [ ] Impersonation events are logged in audit log
+
+### Impersonation Security
+- [ ] Non-admin users cannot access impersonation features
+- [ ] Direct API calls during impersonation are properly restricted
+- [ ] Database queries respect impersonated role permissions
+- [ ] Impersonation state is properly isolated per session
+
+## Database Security Testing
+
+### Row Level Security (RLS)
+- [ ] Patients table RLS policies work correctly
+- [ ] Trials table RLS policies work correctly
+- [ ] Trial services table blocks unauthorized access
+- [ ] Service allocations table blocks unauthorized access
+- [ ] User profiles table protects user data appropriately
+- [ ] Permission tables are protected from unauthorized access
+
+### Direct Database Access
+- [ ] SQL queries respect user roles and permissions
+- [ ] Unauthorized users cannot access sensitive financial data
+- [ ] Service role can bypass RLS for system operations
+- [ ] RLS policies don't interfere with normal operations
+
+## API Security Testing
+
+### Supabase Client Calls
+- [ ] Patient CRUD operations respect user permissions
+- [ ] Trial CRUD operations respect user permissions  
+- [ ] Financial data queries are blocked for unauthorized users
+- [ ] Permission changes can only be made by admins
+- [ ] User management functions are admin-only
+
+### Error Handling
+- [ ] Proper error messages for unauthorized access
+- [ ] No sensitive data leaked in error messages
+- [ ] Authentication errors are handled gracefully
+- [ ] Permission errors are user-friendly
+
+## UI/UX Testing
+
+### Permission Guards
+- [ ] PermissionGuard component shows/hides content correctly
+- [ ] RouteGuard component blocks unauthorized route access
+- [ ] Specialized guards (AdminGuard, PatientGuard) work properly
+- [ ] Fallback content displays appropriately
+
+### Navigation Behavior
+- [ ] Menu items appear/disappear based on permissions
+- [ ] Unauthorized navigation items are completely hidden
+- [ ] User profile information displays correctly
+- [ ] Sign out functionality works from all contexts
+
+### Form Interactions
+- [ ] Create buttons only show when user has create permissions
+- [ ] Edit buttons only show when user has update permissions
+- [ ] Delete buttons only show when user has delete permissions
+- [ ] Form submissions respect user permissions
+
+## Error Scenarios Testing
+
+### Account States
+- [ ] Inactive accounts are properly blocked
+- [ ] Users with no role assignment are handled gracefully
+- [ ] Users with invalid permissions see appropriate messages
+- [ ] Account reactivation works correctly
+
+### Network Issues
+- [ ] Auth state is preserved during network interruptions
+- [ ] Permission checks work offline (cached)
+- [ ] Loading states display during auth checks
+- [ ] Retry mechanisms work for failed auth calls
+
+## Performance Testing
+
+### Permission Checks
+- [ ] Permission checking is fast and doesn't block UI
+- [ ] Database queries for user profiles are optimized
+- [ ] Role changes update UI efficiently
+- [ ] Large user lists load and filter quickly
+
+### Caching Behavior
+- [ ] User profile data is appropriately cached
+- [ ] Permission changes invalidate relevant caches
+- [ ] Session management doesn't cause memory leaks
+
+## Browser Compatibility
+
+### Cross-Browser Testing
+- [ ] Chrome: All RBAC features work correctly
+- [ ] Firefox: All RBAC features work correctly
+- [ ] Safari: All RBAC features work correctly
+- [ ] Edge: All RBAC features work correctly
+
+### Session Management
+- [ ] Login state persists across browser tabs
+- [ ] Logout from one tab affects all tabs
+- [ ] Permission changes sync across tabs
+- [ ] Impersonation state is properly isolated
+
+## Integration Testing
+
+### Existing Features
+- [ ] Patient management works with new permission system
+- [ ] Expense management respects user permissions
+- [ ] Trial management integrates with financial data restrictions
+- [ ] Existing user flows are not broken
+
+### New Feature Integration
+- [ ] New admin features don't interfere with regular operations
+- [ ] Permission system integrates smoothly with existing UI
+- [ ] Database changes don't affect existing data integrity
+
+## Security Verification
+
+### Access Control
+- [ ] No unauthorized access to sensitive endpoints
+- [ ] Admin functions are truly restricted to admins
+- [ ] Financial data is protected from operators
+- [ ] User data privacy is maintained
+
+### Audit Trail
+- [ ] All security-relevant actions are logged
+- [ ] Audit logs cannot be tampered with
+- [ ] Sensitive data is not logged inappropriately
+- [ ] Log retention and cleanup work properly
+
+## Test Data Scenarios
+
+### Create Test Users:
+```
+Admin User:
+- Email: admin@test.com
+- Role: admin
+- Should have all permissions
+
+Operator User (No Permissions):
+- Email: operator@test.com  
+- Role: operator
+- Should have no permissions by default
+
+Operator User (With Patient Access):
+- Email: operator-patients@test.com
+- Role: operator
+- Permissions: patients:create, patients:read, patients:update
+
+Operator User (With Expense Access):
+- Email: operator-expenses@test.com
+- Role: operator  
+- Permissions: expenses:create, expenses:read
+
+Inactive User:
+- Email: inactive@test.com
+- Status: inactive
+- Should be blocked from access
+```
+
+## Common Issues to Watch For
+
+### Authentication Issues
+- [ ] Users getting stuck in auth loops
+- [ ] Session expiry not handled gracefully
+- [ ] Multiple tabs causing auth conflicts
+
+### Permission Issues  
+- [ ] Permission changes not taking effect immediately
+- [ ] Cached permissions showing incorrect access
+- [ ] Race conditions in permission checking
+
+### UI Issues
+- [ ] Navigation flickering during permission checks
+- [ ] Loading states not showing appropriately
+- [ ] Error messages not user-friendly
+
+### Performance Issues
+- [ ] Slow permission checking blocking UI
+- [ ] Memory leaks from auth subscriptions
+- [ ] Database queries not optimized
+
+## Sign-off Checklist
+
+- [ ] All admin features tested and working
+- [ ] All operator restrictions verified
+- [ ] All security measures verified
+- [ ] All error scenarios handled
+- [ ] Performance is acceptable
+- [ ] Cross-browser compatibility verified
+- [ ] Integration with existing features complete
+- [ ] Documentation updated
+- [ ] Ready for production deployment

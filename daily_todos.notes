@@ -1,6 +1,8 @@
 ops.ai -Daily TODO
 General
 - [ ] Add Authentication
+[ ] users should have roles: admin is the higher role. It can see everything and act as other roles, to verify what the other roles have access to and what not.
+operator is the lowest permission role. Admin should be able to assign to which tables of the app the user has access to (question, should enable the access to tables or to certain views? there is certain information like, like the trials fee schedule and the associated services and allocations that i dont want the operatos to see. I want the admin to be able to give access to certain app tools like the patient creation, the submit expenses, but i dont want to give them access to the reports)
 - [ ] create two dbs: production and staging
 - [ ] enable delete on cascade
 - [ ] make mobile-first design
