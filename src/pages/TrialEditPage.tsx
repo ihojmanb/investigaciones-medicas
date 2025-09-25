@@ -70,6 +70,12 @@ export default function TrialEditPage() {
   const handleSave = async () => {
     if (!id) return
 
+    // Validation
+    if (!formData.name.trim()) {
+      toast.error('Trial name is required')
+      return
+    }
+
     try {
       setSaving(true)
       await updateTrial(id, formData)
@@ -139,7 +145,7 @@ export default function TrialEditPage() {
           </div>
         </div>
 
-        <Button onClick={handleSave} disabled={saving}>
+        <Button onClick={handleSave} disabled={saving || !formData.name.trim()}>
           <Save className="w-4 h-4 mr-2" />
           {saving ? 'Saving...' : 'Save Changes'}
         </Button>

@@ -60,8 +60,7 @@ Service Management (trial_services table):
 [x] New service appears in the services list immediately
 [x] Verify service data is saved to trial_services table
 [x] Service edit button opens pre-populated edit form
-[!] Service updates save correctly and show updated data
-    {code: '42703', details: null, hint: null, message: 'record "new" has no field "modified_at"'}
+[√] Service updates save correctly and show updated data
 [x] Service delete button shows confirmation dialog
 [x] Service deletion removes service and all its allocations
 [x] Service expansion/collapse (chevron arrows) works correctly
@@ -84,12 +83,12 @@ Service Allocation Management (service_allocations table):
 [x] New allocation appears immediately under correct service
 [x] Verify allocation data is saved to service_allocations table
 [x] Allocation edit button opens pre-populated edit form
-[!] Allocation updates save correctly and show updated data
+[√] Allocation updates save correctly and show updated data
 [x] Allocation delete button shows confirmation dialog
 [x] Allocation deletion removes only that allocation
 [x] Total allocated amount updates correctly after changes
 [!] Currency consistency maintained between service and allocations
-    can an allocation be paid in a different currency than the service? if not, then allocation should inherit the currency without the capability of being overwritten
+    can an allocation be paid in a different currency than the service? if not, then allocation should inherit the currency without the capability of being overwritten?
 
 
 DATABASE INTEGRATION TESTING
@@ -108,8 +107,7 @@ DATABASE INTEGRATION TESTING
 ERROR HANDLING & EDGE CASES
 ============================
 Form Validation:
-[!] Cannot save trial with empty name
-    behaviour now enables editing a trial name to an empty string
+[√] Cannot save trial with empty name
 [x] Cannot create service with empty name
 [x] Cannot create service with zero or negative amount
 [x] Cannot create allocation with empty name
