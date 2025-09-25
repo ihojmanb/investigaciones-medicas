@@ -10,6 +10,9 @@ export interface Trial {
   name: string
   sponsor: string
   description: string
+  start_date: string
+  end_date: string
+  active: boolean
   created_at: string
 }
 

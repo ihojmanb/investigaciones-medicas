@@ -9,6 +9,7 @@ import ExpenseEditPage from "@/pages/ExpenseEditPage";
 import PatientsPage from "@/pages/PatientsPage";
 import PatientDetailPage from "@/pages/PatientDetailPage";
 import TrialsPage from "@/pages/TrialsPage";
+import TrialEditPage from "@/pages/TrialEditPage";
 import ReportsPage from "@/pages/ReportsPage";
 import NotFound from "@/pages/not-found";
 
@@ -25,6 +26,7 @@ function App() {
             <Route path="/patients" element={<Layout><PatientsPage /></Layout>} />
             <Route path="/patients/:id" element={<Layout><PatientDetailPage /></Layout>} />
             <Route path="/trials" element={<Layout><TrialsPage /></Layout>} />
+            <Route path="/trials/:id/edit" element={<Layout><TrialEditPage /></Layout>} />
             <Route path="/reports" element={<Layout><ReportsPage /></Layout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
