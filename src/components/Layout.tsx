@@ -64,6 +64,16 @@ export default function Layout({ children }: LayoutProps) {
     return saved ? JSON.parse(saved) : false
   })
 
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      toast.success("Signed out successfully")
+    } catch (error) {
+      toast.error("Error signing out")
+      console.error("Sign out error:", error)
+    }
+  }
+
   // Persist sidebar state to localStorage
   useEffect(() => {
     localStorage.setItem('sidebar-collapsed', JSON.stringify(sidebarCollapsed))
@@ -160,70 +170,56 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* Footer - User Info */}
         <div className="p-4 border-t border-gray-200">
-          {!sidebarCollapsed ? (
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="text-xs">
-                    {getUserInitials()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-gray-900 truncate">
-                    {profile?.full_name || profile?.email}
-                  </p>
-                  <p className="text-xs text-gray-500 capitalize">
-                    {profile?.role_name}
-                  </p>
+          <div className="flex items-center justify-between">
+            {!sidebarCollapsed ? (
+              <>
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-primary-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {user?.email || "User"}
+                    </p>
+                  </div>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <User className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem disabled className="flex-col items-start">
-                      <span className="font-medium">{profile?.full_name || 'User'}</span>
-                      <span className="text-xs text-gray-500">{profile?.email}</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="p-2"
+                  title="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </>
+            ) : (
+              <div className="flex justify-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="p-2"
+                  title="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
               </div>
+            )}
+          </div>
+          
+          {/* Version */}
+          <div className="mt-2">
+            {!sidebarCollapsed ? (
               <p className="text-xs text-gray-500 text-center">
                 v1.0.0
               </p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center space-y-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Avatar className="h-8 w-8 cursor-pointer">
-                    <AvatarFallback className="text-xs">
-                      {getUserInitials()}
-                    </AvatarFallback>
-                  </Avatar>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem disabled className="flex-col items-start">
-                    <span className="font-medium">{profile?.full_name || 'User'}</span>
-                    <span className="text-xs text-gray-500">{profile?.email}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-            </div>
-          )}
+            ) : (
+              <div className="flex justify-center mt-2">
+                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
