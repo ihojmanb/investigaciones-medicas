@@ -1,0 +1,143 @@
+MANUAL TESTING CHECKLIST - Fee Schedule System
+==============================================
+Complete Date: ___________
+NEW TRIAL CREATION TESTING (since DB was reset)
+==============================================
+[x] Create new trial with all required fields (name)
+[x] Create new trial with medical specialty field populated
+[x] Create new trial with start date and end date
+[x] Create new trial with active status set to true
+[x] Create new trial with active status set to false
+[x] Verify new trial appears in trials table immediately
+[x] Verify new trial has proper default values for new fields
+[x] Test creating trial with minimal data (only required fields)
+[x] Test creating trial with all fields populated
+
+TRIALS PAGE TESTING
+===================
+[x] Verify Medical Specialty column displays correctly in table
+[x] Test Active/Inactive status shows proper Yes/No badges
+[x] Verify Actions dropdown menu is visible and clickable
+[x] Test "Edit Trial" menu item navigates to correct edit page
+[x] Test search functionality includes trial name
+[x] Test search functionality includes sponsor name  
+[x] Test search functionality includes medical specialty
+[x] Test search functionality includes description
+[ ] Verify table is responsive on smaller screens
+[x] Confirm horizontal scroll shows Actions column when needed
+
+
+
+TRIAL EDIT PAGE TESTING
+=======================
+Basic Form Functionality:
+[x] Page loads correctly when accessing /trials/:id/edit
+[x] All existing trial data loads properly in form fields
+[x] Trial Name field accepts input and saves correctly
+[x] Sponsor field accepts input and saves correctly
+[x] Description textarea accepts input and saves correctly
+[x] Medical Specialty field accepts input and saves correctly
+[x] Start Date field accepts date input and saves correctly
+[x] End Date field accepts date input and saves correctly
+[x] Active toggle switch works and saves correctly
+[x] "Back to Trials" button navigates correctly
+[x] "Save Changes" button saves and redirects to trials page
+[x] Success toast appears on successful save
+[ ] Error toast appears if save fails
+
+FEE SCHEDULE TESTING
+====================
+Service Management (trial_services table):
+[x] "Add Service" button opens service creation form
+[x] Service form accepts service name input
+[ ] Service form accepts amount input (positive numbers only)
+    [ ] amount format number correcty (now appears a 0 in front of the number)
+[x] Service form currency selector works (USD/CLP options)
+[x] Create first service in USD currency
+[x] Create second service in CLP currency
+[x] Create service with large amount (test decimal handling)
+[x] Service creation shows success toast
+[x] New service appears in the services list immediately
+[x] Verify service data is saved to trial_services table
+[x] Service edit button opens pre-populated edit form
+[!] Service updates save correctly and show updated data
+    {code: '42703', details: null, hint: null, message: 'record "new" has no field "modified_at"'}
+[x] Service delete button shows confirmation dialog
+[x] Service deletion removes service and all its allocations
+[x] Service expansion/collapse (chevron arrows) works correctly
+[ ] currency format is shown correctly
+
+Service Allocation Management (service_allocations table):
+[x] "Add Allocation" button appears when service has < 2 allocations
+[x] "Add Allocation" button disappears when service has 2 allocations
+[x] Allocation form accepts allocation name input
+[x] Allocation form validates amount doesn't exceed service amount
+[x] Allocation form shows error if amount exceeds service amount
+[x] Allocation form inherits service currency correctly
+[x] Create first allocation for a USD service
+[x] Create second allocation for same service (test max 2 limit)
+[x] Try to create third allocation (should be blocked by UI)
+[x] Create allocation for a CLP service
+[x] Create allocation with partial amount of service total
+[x] Create allocation with exact remaining amount of service
+[x] Allocation creation shows success toast
+[x] New allocation appears immediately under correct service
+[x] Verify allocation data is saved to service_allocations table
+[x] Allocation edit button opens pre-populated edit form
+[!] Allocation updates save correctly and show updated data
+[x] Allocation delete button shows confirmation dialog
+[x] Allocation deletion removes only that allocation
+[x] Total allocated amount updates correctly after changes
+[!] Currency consistency maintained between service and allocations
+    can an allocation be paid in a different currency than the service? if not, then allocation should inherit the currency without the capability of being overwritten
+
+
+DATABASE INTEGRATION TESTING
+=============================
+[ ] Trial updates persist after page refresh
+[ ] Service creation persists after page refresh
+[ ] Service updates persist after page refresh
+[ ] Service deletion persists after page refresh
+[ ] Allocation creation persists after page refresh
+[ ] Allocation updates persist after page refresh
+[ ] Allocation deletion persists after page refresh
+[ ] Database constraint: Cannot add 3rd allocation to a service
+[ ] Database constraint: Allocation amounts respect validation
+[ ] Trials page shows updated data after editing trial
+
+ERROR HANDLING & EDGE CASES
+============================
+Form Validation:
+[!] Cannot save trial with empty name
+    behaviour now enables editing a trial name to an empty string
+[x] Cannot create service with empty name
+[x] Cannot create service with zero or negative amount
+[x] Cannot create allocation with empty name
+[x] Cannot create allocation with zero or negative amount
+[x] Cannot create allocation exceeding service amount
+
+Network & Error Scenarios:
+[ ] Appropriate error messages shown for failed operations
+[ ] Loading states display correctly during operations
+[ ] Confirmation dialogs prevent accidental deletions
+[ ] Toast notifications appear for all success/error cases
+[ ] Page handles missing trial data gracefully
+
+Responsive & UI Tests:
+[ ] Fee schedule works correctly on mobile/tablet screens
+[ ] Collapsible services work on touch devices
+[ ] All buttons and forms are accessible via keyboard
+[ ] Form fields handle special characters properly
+[ ] Large amounts (10+ digits) display correctly
+[ ] Very long service/allocation names don't break layout
+
+NOTES & ISSUES FOUND:
+====================
+(Add any bugs, issues, or observations during testing)
+
+-
+-
+-
+-
+
+TESTING COMPLETE: [ ] All tests passed successfully

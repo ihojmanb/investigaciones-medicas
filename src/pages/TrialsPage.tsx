@@ -38,7 +38,8 @@ export default function TrialsPage() {
   const filteredTrials = trials.filter(trial =>
     trial.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     trial.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    trial.sponsor.toLowerCase().includes(searchTerm.toLowerCase())
+    trial.sponsor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (trial.medical_specialty && trial.medical_specialty.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
   if (loading) {
@@ -65,7 +66,7 @@ export default function TrialsPage() {
           <p className="text-gray-600">Manage clinical trials and study protocols</p>
         </div>
         
-        <Button>
+        <Button onClick={() => navigate('/trials/new')}>
           <Plus className="w-4 h-4 mr-2" />
           New Trial
         </Button>
@@ -144,7 +145,7 @@ export default function TrialsPage() {
                 {searchTerm ? "No trials found matching your search" : "No trials found"}
               </p>
               {!searchTerm && (
-                <Button>
+                <Button onClick={() => navigate('/trials/new')}>
                   <Plus className="w-4 h-4 mr-2" />
                   Add First Trial
                 </Button>
@@ -156,6 +157,7 @@ export default function TrialsPage() {
                 <TableRow>
                   <TableHead>Trial Name</TableHead>
                   <TableHead>Sponsor</TableHead>
+                  <TableHead>Medical Specialty</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Start Date</TableHead>
                   <TableHead>End Date</TableHead>
@@ -190,6 +192,15 @@ export default function TrialsPage() {
                         <Badge variant="secondary">
                           {trial.sponsor}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {trial.medical_specialty ? (
+                          <Badge variant="outline">
+                            {trial.medical_specialty}
+                          </Badge>
+                        ) : (
+                          <span className="text-gray-400">Not specified</span>
+                        )}
                       </TableCell>
                       <TableCell className="max-w-xs truncate">
                         {trial.description}

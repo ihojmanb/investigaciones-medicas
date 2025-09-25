@@ -1,0 +1,52 @@
+reembolso pacientes
+    * la rendition de gastos de un paciente tiene que ser única, no pueden haber filas repetidas
+    * hay que tener trazabilidad de que se pago y que no
+    * cuando la BBDD tiene duplicados, ensucia el informe
+    * un informe reporta x filas de la BBDD
+    * cuando se emite el informe, esas x filas ya fueron reportadas, y no deben ser reportadas de nuevo
+
+
+- informe se hace semanal (jueves en la tarde o viernes)
+- la carga de datos se hace diaria
+- si no se puede cargar el jueves, se carga el lunes
+- el lunes ya toca cargar para el informe nuevo
+- pero ella carga datos que corresponden al informe anterior y al informe actual
+- com o save el programa que corresponde a que informe
+
+estructuraría unicidad
+- cada estudio se compone de distintas visitas (ej POETYK-SjS tiene [vista1, vista2, visita3])
+- cada paciente por cada estudio puede tener registrado una y solo una de cada visita
+
+estructura informe
+- el informe se constituye con todos los registros hechos durante esta semana, independiente de la fecha de visita
+
+Informe
+- enforzar si es que tiene que subir archivo de recibo, tiene que escribir monto
+
+Lista de precios (tabla)
+- quien la arma
+- quien tiene acceso y quien no
+- R: cada estudio tiene una lista de precios
+- R: la ve la CEO y solo la CEO, ella lo arma y lo mira
+
+Registro de paciente Form
+- estado del paciente: activo, inactivo
+
+El paciente puede pasar a estar inactivo, y se debe registrar cuando paso a la inactividad.
+El paciente puede pasar de estar inactivo a activo nuevamente, para otro estudio
+
+
+Estudios Form
+- Estudios tambien pueden estar activos o inactivos
+- cada estudio tiene una lista de precios
+
+Los formularios ty las tablas ienen que tener restricción de acceso
+
+la lista de precios de cada estudio detalla el costo de cada visita
+donde estan los precios
+
+
+
+
+
+

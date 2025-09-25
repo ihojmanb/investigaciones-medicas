@@ -8,13 +8,13 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { ArrowLeft, Save } from "lucide-react"
 import { toast } from "sonner"
-import { getTrialById, updateTrial, TrialFormData } from "@/services/trialService"
-import { Trial } from "@/types/database"
+import { getTrialWithServices, updateTrial, TrialFormData, TrialWithServices } from "@/services/trialService"
+import FeeScheduleSection from "@/components/FeeScheduleSection"
 
 export default function TrialEditPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const [trial, setTrial] = useState<Trial | null>(null)
+  const [trial, setTrial] = useState<TrialWithServices | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState<TrialFormData>({
@@ -23,6 +23,7 @@ export default function TrialEditPage() {
     description: "",
     start_date: "",
     end_date: "",
+    medical_specialty: "",
     active: true
   })
 
@@ -37,7 +38,7 @@ export default function TrialEditPage() {
     
     try {
       setLoading(true)
-      const data = await getTrialById(id)
+      const data = await getTrialWithServices(id)
       if (data) {
         setTrial(data)
         setFormData({
@@ -46,6 +47,7 @@ export default function TrialEditPage() {
           description: data.description,
           start_date: data.start_date,
           end_date: data.end_date,
+          medical_specialty: data.medical_specialty || "",
           active: data.active
         })
       }
@@ -179,6 +181,16 @@ export default function TrialEditPage() {
             />
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="medical_specialty">Medical Specialty</Label>
+            <Input
+              id="medical_specialty"
+              value={formData.medical_specialty}
+              onChange={(e) => handleInputChange('medical_specialty', e.target.value)}
+              placeholder="Enter medical specialty (e.g., Cardiology, Oncology)"
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="start_date">Start Date</Label>
@@ -211,6 +223,15 @@ export default function TrialEditPage() {
           </div>
         </CardContent>
       </Card>
+      
+      {/* Fee Schedule Section */}
+      {trial && (
+        <FeeScheduleSection
+          trialId={trial.id}
+          services={trial.services || []}
+          onServicesUpdate={loadTrialData}
+        />
+      )}
     </div>
   )
 }

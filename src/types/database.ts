@@ -12,6 +12,7 @@ export interface Trial {
   description: string
   start_date: string
   end_date: string
+  medical_specialty: string
   active: boolean
   created_at: string
 }
@@ -42,4 +43,24 @@ export interface ExpenseItem {
   cost: number
   created_at: string
   modified_at: string
+}
+
+export interface TrialService {
+  id: string
+  trial_id: string
+  name: string
+  amount: number
+  currency: 'USD' | 'CLP'
+  created_at: string
+  updated_at: string
+}
+
+export interface ServiceAllocation {
+  id: string
+  trial_service_id: string
+  name: string
+  amount: number
+  currency: 'USD' | 'CLP'
+  created_at: string
+  updated_at: string
 }

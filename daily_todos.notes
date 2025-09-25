@@ -1,0 +1,147 @@
+ops.ai -Daily TODO
+General
+- [ ] Add Authentication
+- [ ] create two dbs: production and staging
+- [ ] enable delete on cascade
+- [ ] make mobile-first design
+
+Create Expenses Form
+- [x] aceptar un solo archivo por URI. reemplazar archivo se se sube de nuevo
+- [x] el archivo se sube de inmediato, queremos ese comportamiento?
+- [x] reset Gastos Opcionales when submitted
+- [x] Load files to expenses bucket
+- [x] block future dates
+
+
+Edit Expenses Form
+- [ ] check max size of file is indeed 10MB (or reduce to 5MB)
+- [x] edit file is not replacing the file in the bucket, just adding another file
+- [x] enforce amount to be mandatory if a file is uploaded
+- [x] progress indicator should take into account the amount fields if they become required
+- [x] visit selector: should only show the completed expenses
+- [x] same form but with initial data
+- [x] should clearly state that it is edit
+
+Create Patient Form
+modify patients_table to include:
+* first_surname
+* second_surname
+* first_name
+* second_name
+and delete:
+* name
+keep {first_surname} {second_surname}, {first_name} {second_name} as showing name
+- [ ] names
+- [ ] first last name
+- [ ] second last name
+- [ ] code
+- [ ] status: active by default
+
+Patients Table
+- [ ] code
+- [ ] name
+- [ ] status, toggle button to switch status
+- [ ] actions button: edit form
+
+Edit Patient
+- [ ] enable patient edition
+
+Patient View
+- [x] Show total expenses amount
+
+Expense History table
+- [x] show last time modified
+- [x] show visits by their order
+- [ ] view details of each receipt for each expense
+
+
+
+Submitted expenses table
+- [ ] shows expenses table with
+    - [ ] patient number
+    - [ ] patient name
+    - [ ] trial name
+    - [ ] visit
+    - [ ] total amount
+    - [ ] status
+    - [ ] edit button 
+- [ ] 
+
+Trials
+[x] - add active boolean column ✅
+[x] - cada estudio tiene una lista de precios ✅
+
+Trials price list
+[x] create table ✅
+
+Trials table
+[x] show active / inactive ✅
+[ ] show if it has fee schedule
+
+Trial Details View
+[x] implemented as comprehensive edit page ✅
+
+Edit Trial
+[x] full implementation with fee schedule ✅
+[ ] make trial form sticky when scrolling down to add a service
+
+
+Service Allocation Management (service_allocations table):
+[ ] this will only take account for the reports, but ill leave written anywa.y we nee to add the following rule for allocation:
+    if prestacion the subinvestigador esta presente, then there is an amount of money for the investigador principal that is calculated as service.amount- service_subinvestigador.amount
+
+
+
+
+
+COMPLETED: Fee Schedule System Implementation (2025-09-25)
+===========================================================
+
+Database Schema Changes:
+- [x] Updated trials table: added medical_specialty, start_date, end_date, active fields
+- [x] Created trial_services table: for service fee schedules with multi-currency support (USD/CLP)  
+- [x] Created service_allocations table: for service sub-allocations (max 2 per service)
+- [x] Added database constraints: allocation limits, currency validation
+- [x] Fixed RLS policies: added missing UPDATE policy for trials table
+
+TypeScript Interface Updates:
+- [x] Updated Trial interface: added medical_specialty field
+- [x] Created TrialService interface: complete service definition
+- [x] Created ServiceAllocation interface: sub-allocation structure
+- [x] Added form data interfaces: TrialFormData, TrialServiceFormData, ServiceAllocationFormData
+
+Service Layer Implementation:
+- [x] Extended trialService.ts: full CRUD for trials, services, and allocations
+- [x] Added getTrialWithServices(): fetches trial with nested services/allocations
+- [x] Multi-currency support: USD/CLP validation throughout
+- [x] Error handling and validation: proper try/catch and data validation
+
+UI Components Created:
+- [x] ServiceForm: add/edit services with currency selection
+- [x] ServiceAllocationForm: add/edit allocations with amount validation  
+- [x] FeeScheduleSection: main collapsible service management component
+
+Page Updates:
+- [x] TrialEditPage: added medical specialty field + complete fee schedule management
+- [x] TrialsPage: added medical specialty column + enhanced search functionality
+- [x] Routing: added /trials/:id/edit route in App.tsx
+
+Key Features Implemented:
+- [x] Multi-currency support: USD and CLP throughout system
+- [x] Allocation constraints: max 2 allocations per service (database enforced)
+- [x] Amount validation: allocations cannot exceed service amount
+- [x] Collapsible interface: clean, organized fee schedule management
+- [x] Real-time updates: immediate UI refresh on changes
+- [x] Search enhancement: medical specialty included in trials search
+- [x] Database triggers: auto-update timestamps, constraint enforcement
+
+Migration Files Created:
+- [x] 20250925000001_update_trials_table.sql
+- [x] 20250925000002_create_trial_services.sql  
+- [x] 20250925000003_create_service_allocations.sql
+- [x] 20250925000004_add_update_policy_trials.sql
+
+Issues Fixed:
+- [x] Missing RLS UPDATE policy: trials couldn't be edited until policy was added
+- [x] Database field alignment: ensured TypeScript interfaces match actual database schema
+- [x] Column display: Actions column was present but hidden due to horizontal scroll 
