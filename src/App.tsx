@@ -15,6 +15,7 @@ import TrialsPage from "@/pages/TrialsPage";
 import TrialFormPage from "@/pages/TrialFormPage";
 import TrialEditPage from "@/pages/TrialEditPage";
 import ReportsPage from "@/pages/ReportsPage";
+import AdminPage from "@/pages/AdminPage";
 import NotFound from "@/pages/not-found";
 
 function App() {
@@ -88,6 +89,14 @@ function App() {
                 element={
                   <RouteGuard>
                     <Layout><ReportsPage /></Layout>
+                  </RouteGuard>
+                } 
+              />
+              <Route 
+                path="/admin" 
+                element={
+                  <RouteGuard>
+                    <Layout><AdminPage /></Layout>
                   </RouteGuard>
                 } 
               />

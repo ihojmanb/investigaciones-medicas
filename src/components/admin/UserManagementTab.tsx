@@ -36,7 +36,7 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { MoreHorizontal, Plus, Edit, Shield, Ban, CheckCircle } from "lucide-react"
 import { supabase } from "@/lib/supabaseClient"
-import { UserProfile } from "@/contexts/AuthContext"
+import { UserProfile } from "@/types/auth"
 import { toast } from "sonner"
 
 interface UserManagementTabProps {
@@ -63,11 +63,9 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
-        .from('user_details')
-        .select('*')
-        .order('created_at', { ascending: false })
-
+      // Use admin function to fetch all users (bypasses RLS)
+      const { data, error } = await supabase.rpc('get_all_users_for_admin')
+      console.log('Admin users fetch:', data)
       if (error) throw error
       setUsers(data || [])
     } catch (error) {
@@ -111,10 +109,10 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
 
   const handleStatusToggle = async (userId: string, newStatus: boolean) => {
     try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({ is_active: newStatus })
-        .eq('id', userId)
+      const { error } = await supabase.rpc('change_user_status', {
+        target_user_id: userId,
+        new_status: newStatus
+      })
 
       if (error) throw error
       
@@ -189,7 +187,7 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
                   <TableCell>
                     <Select
                       value={roles.find(r => r.name === user.role_name)?.id || ''}
-                      onValueChange={(newRoleId) => handleRoleChange(user.id, newRoleId)}
+                      onValueChange={(newRoleId) => handleRoleChange(user.user_id, newRoleId)}
                     >
                       <SelectTrigger className="w-32">
                         <SelectValue />
@@ -207,8 +205,7 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
                     <div className="flex items-center space-x-2">
                       <Switch
                         checked={user.is_active}
-                        onCheckedChange={(checked) => handleStatusToggle(user.id, checked)}
-                        size="sm"
+                        onCheckedChange={(checked) => handleStatusToggle(user.user_id, checked)}
                       />
                       <Badge variant={user.is_active ? "default" : "secondary"}>
                         {user.is_active ? "Active" : "Inactive"}
@@ -216,13 +213,9 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {user.last_login_at ? (
-                      <span className="text-sm text-gray-600">
-                        {new Date(user.last_login_at).toLocaleDateString()}
-                      </span>
-                    ) : (
-                      <span className="text-sm text-gray-400">Never</span>
-                    )}
+                    <span className="text-sm text-gray-600">
+                      {new Date(user.created_at).toLocaleDateString()}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-gray-600">
@@ -246,7 +239,7 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
-                          onClick={() => handleStatusToggle(user.id, !user.is_active)}
+                          onClick={() => handleStatusToggle(user.user_id, !user.is_active)}
                           className={user.is_active ? "text-red-600" : "text-green-600"}
                         >
                           {user.is_active ? (
@@ -295,13 +288,16 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
               </div>
               
               <div>
-                <Label className="text-gray-600">Current Permissions</Label>
+                <Label className="text-gray-600">Role Information</Label>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {selectedUser.effective_permissions?.map((permission) => (
-                    <Badge key={permission} variant="secondary" className="text-xs">
-                      {permission}
-                    </Badge>
-                  )) || <span className="text-gray-400">No permissions</span>}
+                  <Badge variant="secondary" className="text-xs">
+                    {selectedUser.role_name || 'operator'}
+                  </Badge>
+                  {selectedUser.role?.description && (
+                    <span className="text-sm text-gray-600">
+                      {selectedUser.role.description}
+                    </span>
+                  )}
                 </div>
               </div>
               

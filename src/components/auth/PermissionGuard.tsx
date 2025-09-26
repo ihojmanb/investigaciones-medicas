@@ -1,5 +1,7 @@
 import { ReactNode } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useProfile } from '@/hooks/useProfile'
+import { usePermissions } from '@/hooks/usePermissions'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ShieldX } from 'lucide-react'
 
@@ -20,10 +22,12 @@ export function PermissionGuard({
   fallback,
   children
 }: PermissionGuardProps) {
-  const { profile, hasPermission, hasAnyPermission } = useAuth()
+  const { session } = useAuth()
+  const { profile } = useProfile()
+  const permissionChecks = usePermissions()
 
   // Check if user is authenticated
-  if (!profile) {
+  if (!session) {
     return (
       <Alert className="border-yellow-200 bg-yellow-50">
         <ShieldX className="h-4 w-4 text-yellow-600" />
@@ -31,6 +35,15 @@ export function PermissionGuard({
           You must be logged in to access this content.
         </AlertDescription>
       </Alert>
+    )
+  }
+
+  // If session exists but profile is loading, wait
+  if (!profile) {
+    return (
+      <div className="flex items-center justify-center p-4">
+        <div className="text-sm text-gray-500">Loading...</div>
+      </div>
     )
   }
 
@@ -73,10 +86,47 @@ export function PermissionGuard({
     return <>{children}</>
   }
 
-  // Check permissions
-  const hasRequiredPermissions = requireAll
-    ? allPermissions.every(perm => hasPermission(perm))
-    : hasAnyPermission(allPermissions)
+  // Check permissions using our current permission system
+  // For now, we'll use a simple mapping of permission strings to our permission checks
+  const hasRequiredPermissions = (() => {
+    if (allPermissions.length === 0) return true
+    
+    // Map permission strings to our actual permission checks
+    const checkPermission = (perm: string): boolean => {
+      // Admin role has all permissions
+      if (permissionChecks.isAdmin) return true
+      
+      // Map specific permissions
+      switch (perm) {
+        case 'patients:create': return permissionChecks.canCreatePatients
+        case 'patients:read': return permissionChecks.canReadPatients
+        case 'patients:update': return permissionChecks.canUpdatePatients
+        case 'patients:delete': return permissionChecks.canDeletePatients
+        
+        case 'expenses:create': return permissionChecks.canCreateExpenses
+        case 'expenses:read': return permissionChecks.canReadExpenses
+        case 'expenses:update': return permissionChecks.canUpdateExpenses
+        case 'expenses:delete': return permissionChecks.canDeleteExpenses
+        
+        case 'trials:create': return permissionChecks.canCreateTrials
+        case 'trials:read': return permissionChecks.canReadTrials
+        case 'trials:update': return permissionChecks.canUpdateTrials
+        case 'trials:delete': return permissionChecks.canDeleteTrials
+        
+        case 'trial_services:read': return permissionChecks.canReadTrialServices
+        case 'service_allocations:read': return permissionChecks.canReadServiceAllocations
+        
+        case 'reports:read': return permissionChecks.canReadReports
+        case 'reports:export': return permissionChecks.canExportReports
+        
+        default: return false
+      }
+    }
+    
+    return requireAll
+      ? allPermissions.every(perm => checkPermission(perm))
+      : allPermissions.some(perm => checkPermission(perm))
+  })()
 
   if (!hasRequiredPermissions) {
     if (fallback) {

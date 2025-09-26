@@ -11,6 +11,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Eye, EyeOff, AlertTriangle, RefreshCw } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/contexts/AuthContext"
+import { useProfile } from "@/hooks/useProfile"
+import { usePermissions } from "@/hooks/usePermissions"
 import { supabase } from "@/lib/supabaseClient"
 import { toast } from "sonner"
 
@@ -21,14 +23,16 @@ interface Role {
 }
 
 export function ImpersonationPanel() {
-  const { profile, canImpersonate, refreshProfile } = useAuth()
+  const { session } = useAuth()
+  const { profile, refetch } = useProfile()
+  const { canImpersonate } = usePermissions()
   const [roles, setRoles] = useState<Role[]>([])
   const [currentImpersonation, setCurrentImpersonation] = useState<string | null>(null)
   const [isImpersonating, setIsImpersonating] = useState(false)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (canImpersonate()) {
+    if (canImpersonate) {
       fetchRoles()
     }
   }, [canImpersonate])
@@ -48,7 +52,7 @@ export function ImpersonationPanel() {
   }
 
   const startImpersonation = async (roleName: string) => {
-    if (!canImpersonate()) {
+    if (!canImpersonate) {
       toast.error('You do not have permission to impersonate')
       return
     }
@@ -125,7 +129,7 @@ export function ImpersonationPanel() {
     }
   }, [])
 
-  if (!canImpersonate()) {
+  if (!canImpersonate) {
     return null
   }
 
