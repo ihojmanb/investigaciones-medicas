@@ -22,30 +22,18 @@ export function RouteGuard({
   redirectTo = '/login',
   children
 }: RouteGuardProps) {
-  const { user, loading } = useAuth()
+  const { session } = useAuth()
   const location = useLocation()
 
   useEffect(() => {
     // Store the attempted URL for redirect after login
-    if (requireAuth && !user && location.pathname !== '/login') {
+    if (requireAuth && !session && location.pathname !== '/login') {
       sessionStorage.setItem('redirectAfterLogin', location.pathname)
     }
-  }, [requireAuth, user, location.pathname])
-
-  // Show loading spinner while checking auth
-  // if (loading) {
-  //   return (
-  //     <div className="flex items-center justify-center min-h-screen">
-  //       <div className="flex flex-col items-center space-y-4">
-  //         <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-  //         <p className="text-gray-600">Loading....</p>
-  //       </div>
-  //     </div>
-  //   )
-  // }
+  }, [requireAuth, session, location.pathname])
 
   // Check authentication requirement
-  if (requireAuth && !user) {
+  if (requireAuth && !session) {
     return <Navigate to={redirectTo} state={{ from: location }} replace />
   }
 
@@ -136,9 +124,9 @@ export function PublicRoute({ children }: { children: ReactNode }) {
 
 // Authentication pages route (redirect if already logged in)
 export function AuthRoute({ children }: { children: ReactNode }) {
-  const { user } = useAuth()
+  const { session } = useAuth()
   
-  if (user) {
+  if (session) {
     const redirectTo = sessionStorage.getItem('redirectAfterLogin') || '/'
     sessionStorage.removeItem('redirectAfterLogin')
     return <Navigate to={redirectTo} replace />

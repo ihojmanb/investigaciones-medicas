@@ -42,27 +42,34 @@ export interface PermissionChecks {
 }
 
 export function usePermissions(): PermissionChecks {
-  // MINIMAL SETUP: Allow everything for now, no profile needed
+  const { profile } = useAuth()
+  
+  // Get user role - default to 'operator' if no profile
+  const userRole = profile?.role_name || 'operator'
+  const isAdmin = userRole === 'admin'
+  const isOperator = userRole === 'operator'
+  const isActive = profile?.is_active ?? true
+  
   return {
-    // Patient permissions
+    // Patient permissions - both roles can manage patients
     canCreatePatients: true,
     canReadPatients: true,
     canUpdatePatients: true,
-    canDeletePatients: true,
+    canDeletePatients: isAdmin, // Only admins can delete patients
     
-    // Expense permissions
+    // Expense permissions - both roles can manage expenses
     canCreateExpenses: true,
     canReadExpenses: true,
     canUpdateExpenses: true,
-    canDeleteExpenses: true,
+    canDeleteExpenses: isAdmin, // Only admins can delete expenses
     
-    // Trial permissions
+    // Trial permissions - both roles can manage trials
     canCreateTrials: true,
     canReadTrials: true,
     canUpdateTrials: true,
-    canDeleteTrials: true,
+    canDeleteTrials: isAdmin, // Only admins can delete trials
     
-    // Financial data permissions (sensitive)
+    // Financial data permissions (sensitive) - both roles for now
     canReadTrialServices: true,
     canManageTrialServices: true,
     canReadServiceAllocations: true,
@@ -70,29 +77,30 @@ export function usePermissions(): PermissionChecks {
     
     // Reports permissions
     canReadReports: true,
-    canExportReports: true,
+    canExportReports: isAdmin, // Only admins can export reports
     
-    // Admin permissions
-    canManageUsers: true,
-    canManagePermissions: true,
-    canViewAuditLogs: true,
-    canImpersonate: true,
+    // Admin permissions - admin only
+    canManageUsers: isAdmin,
+    canManagePermissions: isAdmin,
+    canViewAuditLogs: isAdmin,
+    canImpersonate: isAdmin,
     
     // General checks
-    isAdmin: true,
-    isOperator: true,
-    isActive: true
+    isAdmin,
+    isOperator,
+    isActive
   }
 }
 
 // Hook for checking multiple permissions at once
 export function useMultiplePermissions(permissions: string[]) {
-  // MINIMAL SETUP: Allow everything for now
+  const { hasPermission, hasAnyPermission } = useAuth()
+  
   return {
-    hasAll: true,
-    hasAny: true,
+    hasAll: permissions.every(permission => hasPermission(permission)),
+    hasAny: hasAnyPermission(permissions),
     checks: permissions.reduce((acc, permission) => {
-      acc[permission] = true
+      acc[permission] = hasPermission(permission)
       return acc
     }, {} as Record<string, boolean>)
   }

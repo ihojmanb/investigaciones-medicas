@@ -56,7 +56,7 @@ const navigationConfig = [
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { session, signOut } = useAuth()
   const featureAccess = useFeatureAccess()
   
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -66,12 +66,14 @@ export default function Layout({ children }: LayoutProps) {
   })
 
   const handleSignOut = async () => {
+    console.log('🚪 Signing out...')
     try {
-      // await signOut()
+      await signOut()
+      console.log('✅ Signed out successfully')
       toast.success("Signed out successfully")
     } catch (error) {
+      console.error('❌ Sign out error:', error)
       toast.error("Error signing out")
-      console.error("Sign out error:", error)
     }
   }
 
@@ -175,7 +177,7 @@ export default function Layout({ children }: LayoutProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
-                      {user?.email || "User"}
+                      {session?.user?.email || "User"}
                     </p>
                   </div>
                 </div>

@@ -91,7 +91,14 @@ function App() {
                   </RouteGuard>
                 } 
               />
-              <Route path="*" element={<NotFound />} />
+              <Route 
+                path="*" 
+                element={
+                  <RouteGuard>
+                    <NotFound />
+                  </RouteGuard>
+                } 
+              />
             </Routes>
           </Router>
         </TooltipProvider>
