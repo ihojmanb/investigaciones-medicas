@@ -42,7 +42,7 @@ export interface PermissionChecks {
 }
 
 export function usePermissions(): PermissionChecks {
-  const { profile, loading } = useProfile()
+  const { profile } = useProfile()
   
   // Get user role - default to 'operator' if no profile or loading
   const userRole = profile?.role_name || 'operator'
@@ -69,15 +69,15 @@ export function usePermissions(): PermissionChecks {
     canUpdateTrials: true,
     canDeleteTrials: isAdmin, // Only admins can delete trials
     
-    // Financial data permissions (sensitive) - both roles for now
-    canReadTrialServices: true,
-    canManageTrialServices: true,
-    canReadServiceAllocations: true,
-    canManageServiceAllocations: true,
+    // Financial data permissions (sensitive) - admin only
+    canReadTrialServices: isAdmin,
+    canManageTrialServices: isAdmin,
+    canReadServiceAllocations: isAdmin,
+    canManageServiceAllocations: isAdmin,
     
-    // Reports permissions
-    canReadReports: true,
-    canExportReports: isAdmin, // Only admins can export reports
+    // Reports permissions - admin only
+    canReadReports: isAdmin,
+    canExportReports: isAdmin,
     
     // Admin permissions - admin only
     canManageUsers: isAdmin,

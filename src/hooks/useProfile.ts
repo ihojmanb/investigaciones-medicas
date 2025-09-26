@@ -19,7 +19,7 @@ interface CachedProfile {
 const CACHE_EXPIRATION_MS = 5 * 60 * 1000
 
 export function useProfile(): UseProfileReturn {
-  const { session } = useAuth()
+  const { session, signOut } = useAuth()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
@@ -83,6 +83,52 @@ export function useProfile(): UseProfileReturn {
         .single()
 
       if (error) {
+        console.log('Profile fetch error:', error.message, error.code)
+        
+        // Clear cached profile when any fetch fails to prevent stale cache
+        const cacheKey = getCacheKey(userId)
+        localStorage.removeItem(cacheKey)
+        console.log('🗑️ Cleared cached profile due to fetch error')
+        
+        // Check if it's an auth-related error (session invalid/expired)
+        if (error.code === 'PGRST301' || // JWT expired
+            error.code === 'PGRST302' || // JWT invalid
+            error.message.includes('JWT') ||
+            error.message.includes('expired') ||
+            error.message.includes('invalid')) {
+          
+          console.log('🚨 Auth error detected, signing out:', error.message)
+          
+          // Auto sign-out to clear stale session
+          try {
+            await signOut()
+          } catch (signOutError) {
+            console.log('Sign out error (expected for stale sessions):', signOutError)
+            // Even if signOut fails, we should clear local state
+            localStorage.clear()
+            window.location.href = '/login'
+          }
+          
+          throw new Error('Your session has expired. Please sign in again.')
+        }
+        
+        // Check if user doesn't exist in our database (but has valid session)
+        if (error.message.includes('No rows returned') || 
+            error.code === 'PGRST116') { // No rows returned
+          
+          console.log('🚨 User not found in database, signing out:', error.message)
+          
+          try {
+            await signOut()
+          } catch (signOutError) {
+            console.log('Sign out error (expected for missing users):', signOutError)
+            localStorage.clear()
+            window.location.href = '/login'
+          }
+          
+          throw new Error('User account not found. Please contact support.')
+        }
+        
         throw new Error(`Failed to fetch profile: ${error.message}`)
       }
 
@@ -131,10 +177,9 @@ export function useProfile(): UseProfileReturn {
         // Set profile from cache immediately
         setProfile(cachedData.profile)
         
-        // Only refetch if cache is stale
-        if (cachedData.isStale) {
-          refetch()
-        }
+        // Always validate cached user still exists by doing a quick fetch
+        // This will detect if user was deleted from database
+        refetch()
       } else {
         // No cache, need to fetch
         refetch()
