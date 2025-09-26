@@ -30,87 +30,112 @@ function App() {
             <Routes>
               <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
               <Route path="/" element={<Navigate to="/expenses/new" replace />} />
-              <Route 
-                path="/expenses/new" 
+              <Route
+                path="/expenses/new"
                 element={
                   <RouteGuard>
                     <Layout><ExpenseFormPage /></Layout>
                   </RouteGuard>
-                } 
+                }
               />
-              <Route 
-                path="/expenses/:id/edit" 
+              <Route
+                path="/expenses/:id/edit"
                 element={
                   <RouteGuard>
                     <Layout><ExpenseEditPage /></Layout>
                   </RouteGuard>
-                } 
+                }
               />
-              <Route 
-                path="/patients" 
+              <Route
+                path="/patients"
                 element={
                   <RouteGuard>
                     <Layout><PatientsPage /></Layout>
                   </RouteGuard>
-                } 
+                }
               />
-              <Route 
-                path="/patients/:id" 
+              <Route
+                path="/patients/:id"
                 element={
                   <RouteGuard>
                     <Layout><PatientDetailPage /></Layout>
                   </RouteGuard>
-                } 
+                }
               />
-              <Route path="/patients/new" element={<Layout><PatientFormPage /></Layout>} />
-              <Route path="/patients/:id" element={<Layout><PatientDetailPage /></Layout>} />
-              <Route 
-                path="/trials" 
+
+
+              <Route
+                path="/patients/new"
+                element={
+                  <RouteGuard>
+                    <Layout><PatientFormPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/patients/:id"
+                element={
+                  <RouteGuard>
+                    <Layout><PatientDetailPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/patients/:id/edit"
+                element={
+                  <RouteGuard>
+                    <Layout><PatientEditPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+
+              <Route
+                path="/trials"
                 element={
                   <RouteGuard>
                     <Layout><TrialsPage /></Layout>
                   </RouteGuard>
-                } 
+                }
               />
-              <Route 
-                path="/trials/new" 
+              <Route
+                path="/trials/new"
                 element={
                   <RouteGuard>
                     <Layout><TrialFormPage /></Layout>
                   </RouteGuard>
-                } 
+                }
               />
-              <Route 
-                path="/trials/:id/edit" 
+              <Route
+                path="/trials/:id/edit"
                 element={
                   <RouteGuard>
                     <Layout><TrialEditPage /></Layout>
                   </RouteGuard>
-                } 
+                }
               />
-              <Route 
-                path="/reports" 
+              <Route
+                path="/reports"
                 element={
                   <RouteGuard>
                     <Layout><ReportsPage /></Layout>
                   </RouteGuard>
-                } 
+                }
               />
-              <Route 
-                path="/admin" 
+              <Route
+                path="/admin"
                 element={
                   <RouteGuard>
                     <Layout><AdminPage /></Layout>
                   </RouteGuard>
-                } 
+                }
               />
-              <Route 
-                path="*" 
+              <Route
+                path="*"
                 element={
                   <RouteGuard>
                     <NotFound />
                   </RouteGuard>
-                } 
+                }
               />
             </Routes>
           </Router>
