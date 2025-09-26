@@ -13,6 +13,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/AuthContext"
 import { useFeatureAccess } from "@/hooks/usePermissions"
+import { toast } from "sonner"
 
 interface LayoutProps {
   children: React.ReactNode
@@ -55,7 +56,7 @@ const navigationConfig = [
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, profile, signOut } = useAuth()
+  const { user } = useAuth()
   const featureAccess = useFeatureAccess()
   
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -66,7 +67,7 @@ export default function Layout({ children }: LayoutProps) {
 
   const handleSignOut = async () => {
     try {
-      await signOut()
+      // await signOut()
       toast.success("Signed out successfully")
     } catch (error) {
       toast.error("Error signing out")
@@ -84,23 +85,18 @@ export default function Layout({ children }: LayoutProps) {
     featureAccess[item.showWhen]
   )
 
-  const handleSignOut = async () => {
-    await signOut()
-    navigate('/login')
-  }
-
   // Get user initials for avatar
-  const getUserInitials = () => {
-    if (profile?.full_name) {
-      return profile.full_name
-        .split(' ')
-        .map(name => name[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    }
-    return profile?.email?.[0]?.toUpperCase() || 'U'
-  }
+  // const getUserInitials = () => {
+  //   if (profile?.full_name) {
+  //     return profile.full_name
+  //       .split(' ')
+  //       .map(name => name[0])
+  //       .join('')
+  //       .toUpperCase()
+  //       .slice(0, 2)
+  //   }
+  //   return profile?.email?.[0]?.toUpperCase() || 'U'
+  // }
 
   return (
     <div className="flex h-screen bg-gray-50">

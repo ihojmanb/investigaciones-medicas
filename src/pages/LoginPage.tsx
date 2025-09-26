@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { supabase } from "@/lib/supabaseClient";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +22,8 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { signIn } = useAuth();
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -35,21 +38,20 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
+      const { error: signInError } = await signIn(data.email, data.password);
 
-      if (authError) {
-        setError(authError.message);
+      if (signInError) {
+        setError(signInError.message);
         return;
       }
 
-      if (authData.user) {
-        toast.success("Login successful!");
-        // Redirect will be handled by auth state change
-        window.location.href = "/";
-      }
+      toast.success("Login successful!");
+      
+      // Check for stored redirect URL, otherwise go to default
+      const redirectTo = sessionStorage.getItem('redirectAfterLogin') || '/';
+      sessionStorage.removeItem('redirectAfterLogin');
+      navigate(redirectTo, { replace: true });
+      
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
       console.error("Login error:", err);

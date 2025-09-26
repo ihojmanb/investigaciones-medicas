@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Layout from "@/components/Layout";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import { RouteGuard, AuthRoute } from "@/components/auth/RouteGuard";
 import LoginPage from "@/pages/LoginPage";
 import ExpenseFormPage from "@/pages/ExpenseFormPage";
 import ExpenseEditPage from "@/pages/ExpenseEditPage";
@@ -25,70 +25,70 @@ function App() {
           <Toaster />
           <Router>
             <Routes>
-              <Route path="/login" element={<LoginPage />} />
+              <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
               <Route path="/" element={<Navigate to="/expenses/new" replace />} />
               <Route 
                 path="/expenses/new" 
                 element={
-                  <ProtectedRoute>
+                  <RouteGuard>
                     <Layout><ExpenseFormPage /></Layout>
-                  </ProtectedRoute>
+                  </RouteGuard>
                 } 
               />
               <Route 
                 path="/expenses/:id/edit" 
                 element={
-                  <ProtectedRoute>
+                  <RouteGuard>
                     <Layout><ExpenseEditPage /></Layout>
-                  </ProtectedRoute>
+                  </RouteGuard>
                 } 
               />
               <Route 
                 path="/patients" 
                 element={
-                  <ProtectedRoute>
+                  <RouteGuard>
                     <Layout><PatientsPage /></Layout>
-                  </ProtectedRoute>
+                  </RouteGuard>
                 } 
               />
               <Route 
                 path="/patients/:id" 
                 element={
-                  <ProtectedRoute>
+                  <RouteGuard>
                     <Layout><PatientDetailPage /></Layout>
-                  </ProtectedRoute>
+                  </RouteGuard>
                 } 
               />
               <Route 
                 path="/trials" 
                 element={
-                  <ProtectedRoute>
+                  <RouteGuard>
                     <Layout><TrialsPage /></Layout>
-                  </ProtectedRoute>
+                  </RouteGuard>
                 } 
               />
               <Route 
                 path="/trials/new" 
                 element={
-                  <ProtectedRoute>
+                  <RouteGuard>
                     <Layout><TrialFormPage /></Layout>
-                  </ProtectedRoute>
+                  </RouteGuard>
                 } 
               />
               <Route 
                 path="/trials/:id/edit" 
                 element={
-                  <ProtectedRoute>
+                  <RouteGuard>
                     <Layout><TrialEditPage /></Layout>
-                  </ProtectedRoute>
+                  </RouteGuard>
                 } 
               />
               <Route 
                 path="/reports" 
                 element={
-                  <ProtectedRoute>
+                  <RouteGuard>
                     <Layout><ReportsPage /></Layout>
-                  </ProtectedRoute>
+                  </RouteGuard>
                 } 
               />
               <Route path="*" element={<NotFound />} />

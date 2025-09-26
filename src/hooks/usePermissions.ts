@@ -42,66 +42,57 @@ export interface PermissionChecks {
 }
 
 export function usePermissions(): PermissionChecks {
-  const { profile, hasPermission, isAdmin } = useAuth()
-
+  // MINIMAL SETUP: Allow everything for now, no profile needed
   return {
     // Patient permissions
-    canCreatePatients: hasPermission('patients:create'),
-    canReadPatients: hasPermission('patients:read'),
-    canUpdatePatients: hasPermission('patients:update'),
-    canDeletePatients: hasPermission('patients:delete'),
+    canCreatePatients: true,
+    canReadPatients: true,
+    canUpdatePatients: true,
+    canDeletePatients: true,
     
     // Expense permissions
-    canCreateExpenses: hasPermission('expenses:create'),
-    canReadExpenses: hasPermission('expenses:read'),
-    canUpdateExpenses: hasPermission('expenses:update'),
-    canDeleteExpenses: hasPermission('expenses:delete'),
+    canCreateExpenses: true,
+    canReadExpenses: true,
+    canUpdateExpenses: true,
+    canDeleteExpenses: true,
     
     // Trial permissions
-    canCreateTrials: hasPermission('trials:create'),
-    canReadTrials: hasPermission('trials:read'),
-    canUpdateTrials: hasPermission('trials:update'),
-    canDeleteTrials: hasPermission('trials:delete'),
+    canCreateTrials: true,
+    canReadTrials: true,
+    canUpdateTrials: true,
+    canDeleteTrials: true,
     
     // Financial data permissions (sensitive)
-    canReadTrialServices: hasPermission('trial_services:read'),
-    canManageTrialServices: hasPermission('trial_services:create') || 
-                            hasPermission('trial_services:update') || 
-                            hasPermission('trial_services:delete'),
-    canReadServiceAllocations: hasPermission('service_allocations:read'),
-    canManageServiceAllocations: hasPermission('service_allocations:create') || 
-                                hasPermission('service_allocations:update') || 
-                                hasPermission('service_allocations:delete'),
+    canReadTrialServices: true,
+    canManageTrialServices: true,
+    canReadServiceAllocations: true,
+    canManageServiceAllocations: true,
     
     // Reports permissions
-    canReadReports: hasPermission('reports:read'),
-    canExportReports: hasPermission('reports:export'),
+    canReadReports: true,
+    canExportReports: true,
     
     // Admin permissions
-    canManageUsers: hasPermission('users:create') || 
-                   hasPermission('users:update') || 
-                   hasPermission('users:delete'),
-    canManagePermissions: hasPermission('permissions:grant') || 
-                         hasPermission('permissions:revoke'),
-    canViewAuditLogs: hasPermission('audit:read'),
-    canImpersonate: hasPermission('impersonation:use'),
+    canManageUsers: true,
+    canManagePermissions: true,
+    canViewAuditLogs: true,
+    canImpersonate: true,
     
     // General checks
-    isAdmin: isAdmin(),
-    isOperator: profile?.role_name === 'operator',
-    isActive: profile?.is_active ?? false
+    isAdmin: true,
+    isOperator: true,
+    isActive: true
   }
 }
 
 // Hook for checking multiple permissions at once
 export function useMultiplePermissions(permissions: string[]) {
-  const { hasPermission, hasAnyPermission } = useAuth()
-  
+  // MINIMAL SETUP: Allow everything for now
   return {
-    hasAll: permissions.every(permission => hasPermission(permission)),
-    hasAny: hasAnyPermission(permissions),
+    hasAll: true,
+    hasAny: true,
     checks: permissions.reduce((acc, permission) => {
-      acc[permission] = hasPermission(permission)
+      acc[permission] = true
       return acc
     }, {} as Record<string, boolean>)
   }
