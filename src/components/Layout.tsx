@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useAuth } from "@/contexts/AuthContext"
+import { useProfile } from "@/hooks/useProfile"
 import { useFeatureAccess } from "@/hooks/usePermissions"
 import { toast } from "sonner"
 
@@ -53,10 +54,23 @@ const navigationConfig = [
   },
 ]
 
+// Get role badge styling based on role name
+const getRoleBadgeStyle = (roleName: string) => {
+  switch (roleName.toLowerCase()) {
+    case 'admin':
+      return 'bg-red-100 text-red-700 border-red-200'
+    case 'operator':
+      return 'bg-blue-100 text-blue-700 border-blue-200'
+    default:
+      return 'bg-gray-100 text-gray-700 border-gray-200'
+  }
+}
+
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation()
   const navigate = useNavigate()
   const { session, signOut } = useAuth()
+  const { profile, loading: profileLoading } = useProfile()
   const featureAccess = useFeatureAccess()
   
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -179,6 +193,22 @@ export default function Layout({ children }: LayoutProps) {
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {session?.user?.email || "User"}
                     </p>
+                    {session?.user && (
+                      <div className="mt-1">
+                        {profileLoading ? (
+                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-500 border-gray-200">
+                            Loading...
+                          </span>
+                        ) : (
+                          <span className={cn(
+                            "inline-flex items-center px-2 py-1 text-xs font-medium rounded-full border",
+                            getRoleBadgeStyle(profile?.role_name || 'operator')
+                          )}>
+                            {profile?.role_name || 'operator'}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <Button

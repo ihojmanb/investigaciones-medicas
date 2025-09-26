@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts/AuthContext'
+import { useProfile } from '@/hooks/useProfile'
 
 export interface PermissionChecks {
   // Patient permissions
@@ -42,9 +42,9 @@ export interface PermissionChecks {
 }
 
 export function usePermissions(): PermissionChecks {
-  const { profile } = useAuth()
+  const { profile, loading } = useProfile()
   
-  // Get user role - default to 'operator' if no profile
+  // Get user role - default to 'operator' if no profile or loading
   const userRole = profile?.role_name || 'operator'
   const isAdmin = userRole === 'admin'
   const isOperator = userRole === 'operator'
@@ -94,11 +94,25 @@ export function usePermissions(): PermissionChecks {
 
 // Hook for checking multiple permissions at once
 export function useMultiplePermissions(permissions: string[]) {
-  const { hasPermission, hasAnyPermission } = useAuth()
+  const { profile } = useProfile()
+  
+  // Simple implementation based on role
+  const isAdmin = profile?.role_name === 'admin'
+  
+  const hasPermission = (permission: string): boolean => {
+    // Admin has all permissions
+    if (isAdmin) return true
+    
+    // Operators have limited permissions
+    if (permission.includes(':delete') || permission.includes('users:') || permission.includes('permissions:')) {
+      return false
+    }
+    return true // Default allow for operators
+  }
   
   return {
     hasAll: permissions.every(permission => hasPermission(permission)),
-    hasAny: hasAnyPermission(permissions),
+    hasAny: permissions.some(permission => hasPermission(permission)),
     checks: permissions.reduce((acc, permission) => {
       acc[permission] = hasPermission(permission)
       return acc
