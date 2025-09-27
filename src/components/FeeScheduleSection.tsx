@@ -2,12 +2,13 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Edit, Trash2, ChevronDown, ChevronRight } from "lucide-react"
+import { Plus, Edit, Trash2, ChevronDown, ChevronRight, Calendar } from "lucide-react"
 import { toast } from "sonner"
+import { formatCurrency } from "@/utils/currency"
 import { TrialService, ServiceAllocation } from "@/types/database"
-import { 
-  createTrialService, 
-  updateTrialService, 
+import {
+  createTrialService,
+  updateTrialService,
   deleteTrialService,
   createServiceAllocation,
   updateServiceAllocation,
@@ -17,7 +18,7 @@ import {
 } from "@/services/trialService"
 import ServiceForm from "./ServiceForm"
 import ServiceAllocationForm from "./ServiceAllocationForm"
-import { 
+import {
   Collapsible,
   CollapsibleContent,
 } from "@/components/ui/collapsible"
@@ -53,15 +54,17 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
       toast.success('Service created successfully')
       setShowServiceForm(false)
       onServicesUpdate()
-    } catch (error) {
-      toast.error('Error creating service')
+    } catch (error: any) {
+      // Show custom error message if available, otherwise default message
+      const errorMessage = error?.message || 'Error creating service'
+      toast.error(errorMessage)
       console.error(error)
     }
   }
 
   const handleUpdateService = async (data: TrialServiceFormData) => {
     if (!editingService) return
-    
+
     try {
       await updateTrialService(editingService.id, data)
       toast.success('Service updated successfully')
@@ -176,59 +179,70 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
               return (
                 <Collapsible key={service.id} open={isExpanded} onOpenChange={() => toggleServiceExpansion(service.id)}>
                   <div className="border rounded-lg">
-                    <div className="w-full p-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer"
-                         onClick={() => toggleServiceExpansion(service.id)}
+                    <div className="w-full p-4 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => toggleServiceExpansion(service.id)}
                     >
-                      <div className="flex items-center gap-3">
-                        {isExpanded ? (
-                          <ChevronDown className="w-4 h-4" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4" />
-                        )}
-                        <div className="text-left">
-                          <h4 className="font-medium">{service.name}</h4>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="outline">
-                              {service.amount} {service.currency}
-                            </Badge>
-                            <Badge variant={totalAllocated === service.amount ? "default" : "secondary"}>
-                              Allocated: {totalAllocated} {service.currency}
-                            </Badge>
-                            <span className="text-sm text-gray-500">
-                              ({allocationsCount}/2 allocations)
-                            </span>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          {isExpanded ? (
+                            <ChevronDown className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                          )}
+                          <div className="text-left flex-1 min-w-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                              <h4 className="font-medium break-words">{service.name}</h4>
+                              {service.is_visit && (
+                                <Badge variant="secondary" className="text-xs self-start">
+                                  <Calendar className="w-3 h-3 mr-1" />
+                                  Visit {service.visit_order}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                              <Badge variant="outline" className="text-xs self-start">
+                                {formatCurrency(service.amount, service.currency)} {service.currency}
+                              </Badge>
+                              <Badge variant={totalAllocated === service.amount ? "default" : "secondary"} className="text-xs self-start">
+                                Allocated: {formatCurrency(totalAllocated, service.currency)} {service.currency}
+                              </Badge>
+                              <span className="text-sm text-gray-500">
+                                ({allocationsCount}/2 allocations)
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                        <button
-                          type="button"
-                          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-                          onClick={() => setEditingService(service)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-                          onClick={() => handleDeleteService(service.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+
+                        <div className="flex items-center gap-1 ml-2" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                            onClick={() => setEditingService(service)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                            onClick={() => handleDeleteService(service.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
 
                     <CollapsibleContent>
                       <div className="px-4 pb-4 border-t">
                         <div className="mt-4 space-y-3">
-                          <div className="flex items-center justify-between">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <h5 className="font-medium text-sm">Service Allocations</h5>
                             {allocationsCount < 2 && (
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => setEditingAllocation({ serviceId: service.id })}
+                                className="self-start sm:self-auto"
                               >
                                 <Plus className="w-4 h-4 mr-2" />
                                 Add Allocation
@@ -258,20 +272,20 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
                                       onCancel={() => setEditingAllocation(null)}
                                     />
                                   ) : (
-                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                      <div>
-                                        <span className="font-medium">{allocation.name}</span>
-                                        <Badge variant="outline" className="ml-2">
-                                          {allocation.amount} {allocation.currency}
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-gray-50 rounded-lg">
+                                      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                                        <span className="font-medium break-words">{allocation.name}</span>
+                                        <Badge variant="outline" className="text-xs self-start">
+                                          {formatCurrency(allocation.amount, allocation.currency)} {allocation.currency}
                                         </Badge>
                                       </div>
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-1 self-start sm:self-auto">
                                         <button
                                           type="button"
                                           className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-                                          onClick={() => setEditingAllocation({ 
-                                            serviceId: service.id, 
-                                            allocation 
+                                          onClick={() => setEditingAllocation({
+                                            serviceId: service.id,
+                                            allocation
                                           })}
                                         >
                                           <Edit className="w-4 h-4" />
