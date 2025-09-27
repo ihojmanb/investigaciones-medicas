@@ -22,13 +22,6 @@ export interface Trial {
   created_at: string
 }
 
-export interface VisitType {
-  id: string
-  trial_id: string
-  name: string
-  order_number: number
-  created_at: string
-}
 
 export interface PatientExpense {
   id: string
