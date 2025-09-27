@@ -20,7 +20,6 @@ import ServiceAllocationForm from "./ServiceAllocationForm"
 import { 
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 
 interface FeeScheduleSectionProps {
@@ -175,11 +174,10 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
               const allocationsCount = service.allocations?.length || 0
 
               return (
-                <Collapsible key={service.id}>
+                <Collapsible key={service.id} open={isExpanded} onOpenChange={() => toggleServiceExpansion(service.id)}>
                   <div className="border rounded-lg">
-                    <CollapsibleTrigger
-                      onClick={() => toggleServiceExpansion(service.id)}
-                      className="w-full p-4 flex items-center justify-between hover:bg-gray-50"
+                    <div className="w-full p-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer"
+                         onClick={() => toggleServiceExpansion(service.id)}
                     >
                       <div className="flex items-center gap-3">
                         {isExpanded ? (
@@ -204,22 +202,22 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
                       </div>
                       
                       <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                        <Button
-                          variant="ghost"
-                          size="sm"
+                        <button
+                          type="button"
+                          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                           onClick={() => setEditingService(service)}
                         >
                           <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
+                        </button>
+                        <button
+                          type="button"
+                          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                           onClick={() => handleDeleteService(service.id)}
                         >
                           <Trash2 className="w-4 h-4" />
-                        </Button>
+                        </button>
                       </div>
-                    </CollapsibleTrigger>
+                    </div>
 
                     <CollapsibleContent>
                       <div className="px-4 pb-4 border-t">
@@ -268,23 +266,23 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
                                         </Badge>
                                       </div>
                                       <div className="flex items-center gap-2">
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
+                                        <button
+                                          type="button"
+                                          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                                           onClick={() => setEditingAllocation({ 
                                             serviceId: service.id, 
                                             allocation 
                                           })}
                                         >
                                           <Edit className="w-4 h-4" />
-                                        </Button>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
+                                        </button>
+                                        <button
+                                          type="button"
+                                          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                                           onClick={() => handleDeleteAllocation(allocation.id)}
                                         >
                                           <Trash2 className="w-4 h-4" />
-                                        </Button>
+                                        </button>
                                       </div>
                                     </div>
                                   )}

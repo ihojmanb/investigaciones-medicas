@@ -42,11 +42,11 @@ export default function TrialEditPage() {
       if (data) {
         setTrial(data)
         setFormData({
-          name: data.name,
-          sponsor: data.sponsor,
-          description: data.description,
-          start_date: data.start_date,
-          end_date: data.end_date,
+          name: data.name || "",
+          sponsor: data.sponsor || "",
+          description: data.description || "",
+          start_date: data.start_date || "",
+          end_date: data.end_date || "",
           medical_specialty: data.medical_specialty || "",
           active: data.active
         })
