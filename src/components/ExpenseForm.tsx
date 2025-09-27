@@ -253,11 +253,23 @@ export default function ExpenseForm({
           const { field, type, file } = fileUploads[i]
           setUploadProgress(`Subiendo archivos (${i + 1}/${fileUploads.length})...`)
           
+          console.log(`📤 Uploading file ${i + 1}/${fileUploads.length}:`, {
+            field,
+            type,
+            fileName: file.name,
+            patientCode,
+            trialName,
+            visitName
+          })
+          
           const { url, error } = await uploadReceiptFile(file, patientCode, type, trialName, visitName)
           
           if (error) {
+            console.error(`❌ Upload failed for ${file.name}:`, error)
             throw new Error(`Error subiendo archivo ${file.name}: ${error}`)
           }
+          
+          console.log(`✅ Upload successful for ${file.name}:`, url)
           
           // Replace File object with URL in processed form data
           processedFormData[field as keyof ExpenseFormData] = url as any

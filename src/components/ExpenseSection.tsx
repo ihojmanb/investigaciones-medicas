@@ -110,12 +110,13 @@ export default function ExpenseSection({
             <Input
               id={`amount-${title}`}
               type="number"
-              step="0.01"
+              step="1"
               min="0"
               value={amount}
               onChange={(e) => onAmountChange(e.target.value)}
               placeholder={receipt ? "Monto requerido cuando hay recibo" : "Sin puntos ni comas"}
               className={receipt && (!amount || amount.trim() === "") ? "border-red-300 focus:border-red-500" : ""}
+              disabled={!receipt}
               data-testid={`input-amount-${title.toLowerCase().replace(/\s+/g, '-')}`}
             />
             {receipt && (!amount || amount.trim() === "") && (
