@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient'
 import { Trial, TrialService, ServiceAllocation } from '@/types/database'
+import { getNextVisitOrder } from './visitService'
 
 export interface TrialFormData {
   name: string
@@ -13,13 +14,15 @@ export interface TrialFormData {
 
 export interface TrialServiceFormData {
   name: string
-  amount: number
+  amount: string
   currency: 'USD' | 'CLP'
+  is_visit: boolean
+  visit_order: number | null
 }
 
 export interface ServiceAllocationFormData {
   name: string
-  amount: number
+  amount: string
   currency: 'USD' | 'CLP'
 }
 
@@ -124,34 +127,66 @@ export async function getTrialWithServices(id: string): Promise<TrialWithService
 
 // Trial Services CRUD
 export async function createTrialService(trialId: string, serviceData: TrialServiceFormData): Promise<TrialService> {
+  // If this is a visit service and no visit order is specified, auto-assign it
+  let visitOrder = serviceData.visit_order
+  if (serviceData.is_visit && visitOrder === null) {
+    visitOrder = await getNextVisitOrder(trialId)
+  }
+
   try {
     const { data, error } = await supabase
       .from('trial_services')
       .insert({
         trial_id: trialId,
         name: serviceData.name,
-        amount: serviceData.amount,
-        currency: serviceData.currency
+        amount: parseFloat(serviceData.amount),
+        currency: serviceData.currency,
+        is_visit: serviceData.is_visit,
+        visit_order: visitOrder
       })
       .select()
       .single()
 
     if (error) throw error
     return data
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating trial service:', error)
+    
+    // Handle duplicate visit order constraint violation
+    if (error?.code === '23505' && error?.message?.includes('unique_visit_order_per_trial')) {
+      const visitNumber = serviceData.visit_order || visitOrder
+      throw new Error(`Ya has creado una visita ${visitNumber} para este estudio. Por favor, elige un número de visita diferente.`)
+    }
+    
     throw error
   }
 }
 
 export async function updateTrialService(id: string, serviceData: TrialServiceFormData): Promise<void> {
   try {
+    // First get the current service to check its trial_id
+    const { data: currentService, error: fetchError } = await supabase
+      .from('trial_services')
+      .select('trial_id, is_visit')
+      .eq('id', id)
+      .single()
+
+    if (fetchError) throw fetchError
+
+    // If this is being changed to a visit service and no visit order is specified, auto-assign it
+    let visitOrder = serviceData.visit_order
+    if (serviceData.is_visit && visitOrder === null) {
+      visitOrder = await getNextVisitOrder(currentService.trial_id)
+    }
+
     const { error } = await supabase
       .from('trial_services')
       .update({
         name: serviceData.name,
-        amount: serviceData.amount,
-        currency: serviceData.currency
+        amount: parseFloat(serviceData.amount),
+        currency: serviceData.currency,
+        is_visit: serviceData.is_visit,
+        visit_order: visitOrder
       })
       .eq('id', id)
 
@@ -184,7 +219,7 @@ export async function createServiceAllocation(serviceId: string, allocationData:
       .insert({
         trial_service_id: serviceId,
         name: allocationData.name,
-        amount: allocationData.amount,
+        amount: parseFloat(allocationData.amount),
         currency: allocationData.currency
       })
       .select()
@@ -204,7 +239,7 @@ export async function updateServiceAllocation(id: string, allocationData: Servic
       .from('service_allocations')
       .update({
         name: allocationData.name,
-        amount: allocationData.amount,
+        amount: parseFloat(allocationData.amount),
         currency: allocationData.currency
       })
       .eq('id', id)

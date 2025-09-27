@@ -24,14 +24,15 @@ export default function ServiceAllocationForm({
 }: ServiceAllocationFormProps) {
   const [formData, setFormData] = useState<ServiceAllocationFormData>({
     name: allocation?.name || "",
-    amount: allocation?.amount || 0,
+    amount: allocation?.amount?.toString() || "",
     currency: allocation?.currency || currency
   })
   const [saving, setSaving] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.name.trim() || formData.amount <= 0 || formData.amount > maxAmount) return
+    const amount = parseFloat(formData.amount)
+    if (!formData.name.trim() || formData.amount.trim() === '' || amount <= 0 || amount > maxAmount) return
 
     try {
       setSaving(true)
@@ -48,7 +49,8 @@ export default function ServiceAllocationForm({
     }))
   }
 
-  const isAmountValid = formData.amount > 0 && formData.amount <= maxAmount
+  const amount = parseFloat(formData.amount)
+  const isAmountValid = formData.amount.trim() !== '' && !isNaN(amount) && amount > 0 && amount <= maxAmount
 
   return (
     <div className="border rounded-lg p-4 space-y-4">
@@ -83,13 +85,13 @@ export default function ServiceAllocationForm({
               type="number"
               min="0"
               max={maxAmount}
-              step="0.01"
+              step="1"
               value={formData.amount}
-              onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
-              className={!isAmountValid && formData.amount > 0 ? "border-red-500" : ""}
+              onChange={(e) => handleInputChange('amount', e.target.value)}
+              className={!isAmountValid && formData.amount ? "border-red-500" : ""}
               required
             />
-            {formData.amount > maxAmount && (
+            {amount > maxAmount && (
               <p className="text-sm text-red-500">
                 Amount cannot exceed service amount
               </p>
