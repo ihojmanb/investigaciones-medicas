@@ -1,0 +1,156 @@
+# Admin Fee Schedule Workflow Testing Plan
+
+## Current Implementation Status ✅
+
+**Completed Work:**
+- ✅ Enhanced trial_services table with visit functionality (`is_visit`, `visit_order`)
+- ✅ Applied comprehensive RLS policies across all tables
+- ✅ Updated ServiceForm with visit toggle and optional ordering
+- ✅ Enhanced FeeScheduleSection with visit indicators (calendar icons)
+- ✅ Fixed layout scrolling issues (single scrollbar, fixed sidebar)
+- ✅ Created visits view for operator access (no financial data exposure)
+- ✅ Implemented auto-increment visit ordering with manual override
+
+## Test Areas to Validate
+
+### 1. Service Creation & Management Tests
+
+**Test 1.1: Create Regular Service (Non-Visit)**
+[x] Navigate to Trials page → Select trial → Fee Schedule section
+[x] Click "Add Service" button
+[x] Fill service name, amount, currency
+[x] Leave "This service is a visit" unchecked
+[x] Submit form
+[x] **Expected**: Service created without visit indicators
+
+**Test 1.2: Create Visit Service with Auto-Assigned Order**
+[x] Click "Add Service" button
+[x] Fill service name, amount, currency
+[x] Check "This service is a visit" checkbox
+[x] Leave visit order field empty
+[x] Submit form
+[x] **Expected**: Service created with visit order = 1 (first visit)
+
+**Test 1.3: Create Second Visit Service (Auto-Increment)**
+[x] Create another visit service with empty visit order
+[x] **Expected**: Service created with visit order = 2
+
+**Test 1.4: Create Visit Service with Manual Order**
+[x] Click "Add Service" button
+[x] Check "This service is a visit"
+[x] Manually enter visit order = 5
+[x] Submit form
+[x] **Expected**: Service created with visit order = 5
+
+**Test 1.5: Edit Existing Service - Toggle Visit Status**
+[x] Click edit button on a regular service
+[x] Check "This service is a visit"
+[x] **Expected**: Visit order field appears
+[x] Submit changes
+[x] **Expected**: Service now shows visit indicators
+
+### 2. UI/UX Validation Tests
+
+**Test 2.1: ServiceForm Display**
+[x] Open Add Service form
+[x] **Expected**: "This service is a visit" checkbox visible
+[x] Check the visit checkbox
+[x] **Expected**: Visit order field appears with placeholder text
+[x] Uncheck the visit checkbox
+[x] **Expected**: Visit order field disappears
+
+**Test 2.2: Visit Service Display**
+[x] Create a visit service
+[x] **Expected**: Service shows calendar icon with "Visit X" badge
+[x] **Expected**: Regular services don't show visit indicators
+
+**Test 2.3: Layout and Scrolling**
+[x] Open Add Service form
+[x] Scroll down in the main content area
+[x] **Expected**: Only main content scrolls, sidebar stays fixed
+[x] **Expected**: No gray footer appears behind form
+
+### 3. Database Integration Tests
+
+**Test 3.1: Visit Order Constraints**
+[x] Try to create two visit services with the same visit order
+[x] **Expected**: Database constraint prevents duplicate visit orders
+
+**Test 3.2: Auto-Increment Logic**
+[x] Create visit with order 1
+[x] Create visit without specifying order
+[x] **Expected**: Auto-assigned order = 2
+[x] Create visit with order 10
+[x] Create another visit without specifying order
+[x] **Expected**: Auto-assigned order = 11
+
+**Test 3.3: RLS Access Control** (requires operator user)
+[x] Login as operator user
+[x] Navigate to trials
+[x] **Expected**: Can see visits but not financial amounts
+[x] Login as admin user
+[x] **Expected**: Can see all service data including financial information
+
+### 4. Service Management Workflow Tests
+
+**Test 4.1: Complete Service Creation Workflow**
+[x] Create trial
+[x] Add 3 regular services
+[x] Add 3 visit services
+[x] **Expected**: Visit services show in order with calendar icons
+[x] **Expected**: Regular services show without visit indicators
+
+**Test 4.2: Service List Updates**
+[x] Create new service
+[x] **Expected**: Service appears in list immediately
+[x] Edit service to change visit status
+[x] **Expected**: Display updates to reflect new status
+
+**Test 4.3: Service Allocations Integration**
+[x] Create a visit service
+[x] Add service allocations to it
+[x] **Expected**: Allocation functionality works normally
+[x] **Expected**: Visit indicators still display correctly
+
+**Test 4.4: Service Deletion Impact**
+[x] Create visits with orders 1, 2, 3
+[x] Delete visit with order 2
+[x] Create new visit without specifying order
+[x] **Expected**: New visit gets order 4 (not 2)
+
+### 5. Edge Cases and Error Handling
+
+**Test 5.1: Form Validation**
+[x] Try to submit service with empty name
+[x] **Expected**: Validation prevents submission
+[x] Try negative amount
+[x] **Expected**: Validation prevents submission
+
+**Test 5.2: Visit Order Edge Cases**
+[x] Try to enter visit order 0
+[x] Try to enter negative visit order
+[x] Try to enter non-integer visit order
+[x] **Expected**: Proper validation and error messages
+
+**Test 5.3: Large Visit Orders**
+[x] Create visit with order 999
+[x] Create visit without specifying order
+[x] **Expected**: Auto-assigned order = 1000
+
+## Success Criteria
+
+✅ **All service types can be created and managed**
+✅ **Visit services display with proper visual indicators**
+✅ **Visit ordering works automatically with manual override option**
+✅ **Layout scrolling works correctly (single scrollbar)**
+✅ **RLS properly enforces access control**
+✅ **Service allocations continue to work normally**
+✅ **Database constraints prevent data integrity issues**
+
+## Notes for Testing
+
+- Test with different screen sizes to ensure responsive behavior
+- Use browser dev tools to verify no console errors
+- Test with both USD and CLP currencies
+- Verify that existing services/allocations are not affected by new visit functionality
+- Test rapid form submissions to check for race conditions
