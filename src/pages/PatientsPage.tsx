@@ -28,7 +28,6 @@ export default function PatientsPage() {
   const { patients, loading: patientsLoading } = usePatients()
   const { trials } = useTrials()
   const [searchTerm, setSearchTerm] = useState("")
-
   // Filter patients based on search term
   const filteredPatients = patients.filter(patient => {
     const fullName = formatPatientName(patient).toLowerCase()
@@ -140,7 +139,6 @@ export default function PatientsPage() {
                           onCheckedChange={(checked) => 
                             handleStatusToggle(patient.id, checked ? 'active' : 'inactive')
                           }
-                          size="sm"
                         />
                         <span className="text-sm text-gray-600 capitalize">
                           {patient.status}

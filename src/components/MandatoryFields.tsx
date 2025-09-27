@@ -9,6 +9,7 @@ import { format } from "date-fns"
 import { usePatients } from "@/hooks/usePatients"
 import { useTrials } from "@/hooks/useTrials"
 import { getEligibleVisitsForPatient, EligibleVisit } from "@/services/visitService"
+import { formatPatientName } from "@/services/patientService"
 import { useEffect, useState } from "react"
 
 interface MandatoryFieldsProps {
@@ -78,7 +79,7 @@ export default function MandatoryFields({
               </SelectTrigger>
               <SelectContent>
                 {patients.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>{p.code} - {p.name}</SelectItem>
+                  <SelectItem key={p.id} value={p.id}>{p.code} - {formatPatientName(p)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

@@ -11,6 +11,7 @@ export function usePatients() {
     const fetchPatients = async () => {
       try {
         setLoading(true)
+        
         const { data, error } = await supabase
           .from('patients')
           .select('*')
