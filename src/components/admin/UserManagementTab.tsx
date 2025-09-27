@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Card } from "@/components/ui/card"
 import { 
   Table, 
   TableBody, 
@@ -34,7 +35,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { MoreHorizontal, Plus, Edit, Shield, Ban, CheckCircle } from "lucide-react"
+import { MoreHorizontal, MoreVertical, Plus, Edit, Shield, Ban, CheckCircle, XCircle } from "lucide-react"
 import { supabase } from "@/lib/supabaseClient"
 import { UserProfile } from "@/types/auth"
 import { toast } from "sonner"
@@ -151,8 +152,8 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
         </div>
       </div>
 
-      {/* Users Table */}
-      <div className="bg-white rounded-lg border">
+      {/* Desktop Users Table */}
+      <div className="hidden md:block bg-white rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -262,6 +263,99 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {filteredUsers.length === 0 ? (
+          <Card className="p-8 text-center">
+            <p className="text-gray-500">
+              {searchTerm ? "No users found matching your search." : "No users found."}
+            </p>
+          </Card>
+        ) : (
+          filteredUsers.map((user) => (
+            <Card key={user.id} className="p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <h3 className="font-medium text-lg">
+                    {user.full_name || user.email}
+                  </h3>
+                  <p className="text-sm text-gray-500">{user.email}</p>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => {
+                      setSelectedUser(user)
+                      setIsEditDialogOpen(true)
+                    }}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Permissions
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => handleStatusToggle(user.user_id, !user.is_active)}
+                      className={!user.is_active ? "text-green-600" : "text-red-600"}
+                    >
+                      {!user.is_active ? (
+                        <>
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          Activate
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="mr-2 h-4 w-4" />
+                          Deactivate
+                        </>
+                      )}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">Role:</span>
+                  <Select
+                    value={roles.find(r => r.name === user.role_name)?.id || ''}
+                    onValueChange={(value) => handleRoleChange(user.user_id, value)}
+                  >
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roles.map((role) => (
+                        <SelectItem key={role.id} value={role.id}>
+                          <div className="capitalize">{role.name}</div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 text-sm">Status:</span>
+                  <Switch
+                    checked={user.is_active}
+                    onCheckedChange={(checked) => handleStatusToggle(user.user_id, checked)}
+                  />
+                </div>
+                
+                <div className="text-xs text-gray-400 space-y-1">
+                  <div className="flex justify-between">
+                    <span>Created:</span>
+                    <span>{new Date(user.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
       </div>
 
       {/* Edit User Dialog */}

@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react"
-import { useParams, Link } from "react-router-dom"
-import { Button } from "@/components/ui/button"
+import { useParams, useNavigate } from "react-router-dom"
 import { ArrowLeft } from "lucide-react"
 import PatientForm from "@/components/PatientForm"
 import { getPatientById } from "@/services/patientService"
 import { Patient } from "@/types/database"
+import PageHeader from "@/components/PageHeader"
 
 export default function PatientEditPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [patient, setPatient] = useState<Patient | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -33,19 +34,15 @@ export default function PatientEditPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" asChild>
-            <Link to="/patients">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Patients
-            </Link>
-          </Button>
-          
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Edit Patient</h1>
-            <p className="text-gray-600">Modify patient information</p>
-          </div>
-        </div>
+        <PageHeader
+          title="Edit Patient"
+          subtitle="Modify patient information"
+          backButton={{
+            label: "Back to Patients",
+            icon: <ArrowLeft className="w-4 h-4" />,
+            onClick: () => navigate("/patients")
+          }}
+        />
         
         <div className="text-center py-12">
           <p className="text-gray-500">Loading patient...</p>
@@ -57,19 +54,15 @@ export default function PatientEditPage() {
   if (error || !patient) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" asChild>
-            <Link to="/patients">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Patients
-            </Link>
-          </Button>
-          
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Edit Patient</h1>
-            <p className="text-gray-600">Modify patient information</p>
-          </div>
-        </div>
+        <PageHeader
+          title="Edit Patient"
+          subtitle="Modify patient information"
+          backButton={{
+            label: "Back to Patients",
+            icon: <ArrowLeft className="w-4 h-4" />,
+            onClick: () => navigate("/patients")
+          }}
+        />
         
         <div className="text-center py-12">
           <p className="text-red-500">{error || 'Patient not found'}</p>
@@ -79,20 +72,16 @@ export default function PatientEditPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-4">
-        <Button variant="ghost" asChild>
-          <Link to="/patients">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Patients
-          </Link>
-        </Button>
-        
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Edit Patient</h1>
-          <p className="text-gray-600">Modify patient information</p>
-        </div>
-      </div>
+    <div>
+      <PageHeader
+        title="Edit Patient"
+        subtitle="Modify patient information"
+        backButton={{
+          label: "Back to Patients",
+          icon: <ArrowLeft className="w-4 h-4" />,
+          onClick: () => navigate("/patients")
+        }}
+      />
       
       <PatientForm mode="edit" patient={patient} />
     </div>

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
+import { Card } from "@/components/ui/card"
 import { 
   Table, 
   TableBody, 
@@ -21,12 +22,14 @@ import { Search, MoreHorizontal, Eye, Edit, Plus } from "lucide-react"
 import { usePatients } from "@/hooks/usePatients"
 import { useTrials } from "@/hooks/useTrials"
 import { formatPatientName, updatePatientStatus } from "@/services/patientService"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
+import PageHeader from "@/components/PageHeader"
 
 export default function PatientsPage() {
   const { patients, loading: patientsLoading, refetch } = usePatients()
   const { trials } = useTrials()
+  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState("")
   // Filter patients based on search term
   const filteredPatients = patients.filter(patient => {
@@ -72,23 +75,18 @@ export default function PatientsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Patients</h1>
-          <p className="text-gray-600">Manage patient information and expense history</p>
-        </div>
-        
-        <Button asChild>
-          <Link to="/patients/new">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Patient
-          </Link>
-        </Button>
-      </div>
+    <div>
+        <PageHeader
+          title="Patients"
+          subtitle="Manage patient information and expense history"
+          action={{
+            label: "Add Patient",
+            icon: <Plus className="w-4 h-4" />,
+            onClick: () => navigate("/patients/new")
+          }}
+        />
 
-      {/* Search */}
+      {/* Search - Keep the search bar below the header */}
       <div className="flex items-center space-x-4">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -101,8 +99,8 @@ export default function PatientsPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-lg border">
+      {/* Desktop Table */}
+      <div className="hidden md:block bg-white rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -181,6 +179,86 @@ export default function PatientsPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {filteredPatients.length === 0 ? (
+          <Card className="p-8 text-center">
+            <p className="text-gray-500">
+              {searchTerm ? "No patients found matching your search." : "No patients found."}
+            </p>
+          </Card>
+        ) : (
+          filteredPatients.map((patient) => {
+            const patientTrials = getPatientTrials(patient.id)
+            
+            return (
+              <Card key={patient.id} className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-mono text-sm text-gray-500">{patient.code}</span>
+                      <Badge variant={patient.status === 'active' ? 'default' : 'secondary'}>
+                        {patient.status === 'active' ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </div>
+                    <h3 className="font-medium text-lg">{formatPatientName(patient)}</h3>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link to={`/patients/${patient.id}`}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Details
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={`/patients/${patient.id}/edit`}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit Patient
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500">Status Control:</span>
+                    <Switch
+                      checked={patient.status === 'active'}
+                      onCheckedChange={(checked) => handleStatusToggle(patient.id, checked ? 'active' : 'inactive')}
+                    />
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Active Trials:</span>
+                    <span className="font-medium">{patientTrials.length}</span>
+                  </div>
+                  
+                  {patientTrials.length > 0 && (
+                    <div className="pt-2 border-t">
+                      <p className="text-gray-500 text-xs mb-1">Trials:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {patientTrials.map((trial) => (
+                          <Badge key={trial.id} variant="outline" className="text-xs">
+                            {trial.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            )
+          })
+        )}
       </div>
     </div>
   )

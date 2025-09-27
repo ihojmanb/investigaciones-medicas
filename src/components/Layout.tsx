@@ -1,16 +1,15 @@
-import { Link, useLocation, useNavigate } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { Receipt, Users, FlaskConical, BarChart3, Menu, X, Settings, LogOut, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { useAuth } from "@/contexts/AuthContext"
 import { useProfile } from "@/hooks/useProfile"
 import { useFeatureAccess } from "@/hooks/usePermissions"
@@ -68,16 +67,17 @@ const getRoleBadgeStyle = (roleName: string) => {
 
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation()
-  const navigate = useNavigate()
   const { session, signOut } = useAuth()
   const { profile, loading: profileLoading } = useProfile()
   const featureAccess = useFeatureAccess()
-  
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     // Initialize from localStorage, default to false
     const saved = localStorage.getItem('sidebar-collapsed')
     return saved ? JSON.parse(saved) : false
   })
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleSignOut = async () => {
     console.log('🚪 Signing out...')
@@ -97,28 +97,139 @@ export default function Layout({ children }: LayoutProps) {
   }, [sidebarCollapsed])
 
   // Filter navigation items based on permissions
-  const navigation = navigationConfig.filter(item => 
+  const navigation = navigationConfig.filter(item =>
     featureAccess[item.showWhen]
   )
 
-  // Get user initials for avatar
-  // const getUserInitials = () => {
-  //   if (profile?.full_name) {
-  //     return profile.full_name
-  //       .split(' ')
-  //       .map(name => name[0])
-  //       .join('')
-  //       .toUpperCase()
-  //       .slice(0, 2)
-  //   }
-  //   return profile?.email?.[0]?.toUpperCase() || 'U'
-  // }
+  // Mobile navigation click handler
+  const handleMobileNavClick = () => {
+    setMobileMenuOpen(false)
+  }
+
+  // Render navigation items
+  const renderNavigation = (isMobile = false) => (
+    <nav className={cn("space-y-2", isMobile ? "flex-1 px-4 py-6" : "flex-1 px-4 py-6")}>
+      {navigation.map((item) => {
+        const isActive = location.pathname === item.href ||
+          (item.href !== "/" && location.pathname.startsWith(item.href))
+
+        return (
+          <Link
+            key={item.name}
+            to={item.href}
+            onClick={isMobile ? handleMobileNavClick : undefined}
+            className={cn(
+              "flex items-center text-sm font-medium rounded-md relative group",
+              isMobile
+                ? "px-3 py-2"
+                : sidebarCollapsed
+                  ? "px-2 justify-center"
+                  : "px-3 py-2",
+              isActive
+                ? "bg-primary text-primary-foreground"
+                : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+            )}
+            title={sidebarCollapsed && !isMobile ? item.name : undefined}
+          >
+            <item.icon className={cn(
+              "flex-shrink-0",
+              isMobile
+                ? "w-5 h-5 mr-3"
+                : sidebarCollapsed
+                  ? "w-5 h-5 m-2"
+                  : "w-5 h-5 mr-3"
+            )} />
+            {(isMobile || !sidebarCollapsed) && item.name}
+
+            {/* Tooltip for collapsed state */}
+            {sidebarCollapsed && !isMobile && (
+              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                {item.name}
+              </div>
+            )}
+          </Link>
+        )
+      })}
+    </nav>
+  )
+
+  // Render user info section
+  const renderUserInfo = (isMobile = false) => (
+    <div className={cn("border-t border-gray-200", isMobile ? "p-4" : "p-4")}>
+      <div className="flex items-center justify-between">
+        {(isMobile || !sidebarCollapsed) ? (
+          <>
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-primary-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {session?.user?.email || "User"}
+                </p>
+                {session?.user && (
+                  <div className="mt-1">
+                    {profileLoading ? (
+                      <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-500 border-gray-200">
+                        Loading...
+                      </span>
+                    ) : (
+                      <span className={cn(
+                        "inline-flex items-center px-2 py-1 text-xs font-medium rounded-full border",
+                        getRoleBadgeStyle(profile?.role_name || 'operator')
+                      )}>
+                        {profile?.role_name || 'operator'}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSignOut}
+              className="p-2"
+              title="Sign out"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </>
+        ) : (
+          <div className="flex justify-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSignOut}
+              className="p-2"
+              title="Sign out"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Version */}
+      <div className="mt-2">
+        {(isMobile || !sidebarCollapsed) ? (
+          <p className="text-xs text-gray-500 text-center">
+            v1.0.0
+          </p>
+        ) : (
+          <div className="flex justify-center mt-2">
+            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
+      {/* Desktop Sidebar - Hidden on mobile */}
       <div className={cn(
-        "flex flex-col bg-white shadow-sm transition-[width] duration-300 ease-in-out",
+        "hidden md:flex flex-col bg-white shadow-sm transition-[width] duration-300 ease-in-out",
         sidebarCollapsed ? "w-16" : "w-64"
       )}>
         {/* Logo/Header */}
@@ -145,115 +256,47 @@ export default function Layout({ children }: LayoutProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-2">
-          {navigation.map((item) => {
-            const isActive = location.pathname === item.href || 
-              (item.href !== "/" && location.pathname.startsWith(item.href))
-            
-            return (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  "flex items-center text-sm font-medium rounded-md relative group",
-                  sidebarCollapsed ? "px-2 justify-center" : "px-3 py-2",
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                )}
-                title={sidebarCollapsed ? item.name : undefined}
-              >
-                <item.icon className={cn(
-                  "flex-shrink-0",
-                  sidebarCollapsed ? "w-5 h-5 m-2" : "w-5 h-5"
-                )} />
-                {!sidebarCollapsed && item.name}
-                
-                {/* Tooltip for collapsed state */}
-                {sidebarCollapsed && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
-                    {item.name}
-                  </div>
-                )}
-              </Link>
-            )
-          })}
-        </nav>
+        {renderNavigation(false)}
 
         {/* Footer - User Info */}
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center justify-between">
-            {!sidebarCollapsed ? (
-              <>
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-primary-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {session?.user?.email || "User"}
-                    </p>
-                    {session?.user && (
-                      <div className="mt-1">
-                        {profileLoading ? (
-                          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-500 border-gray-200">
-                            Loading...
-                          </span>
-                        ) : (
-                          <span className={cn(
-                            "inline-flex items-center px-2 py-1 text-xs font-medium rounded-full border",
-                            getRoleBadgeStyle(profile?.role_name || 'operator')
-                          )}>
-                            {profile?.role_name || 'operator'}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleSignOut}
-                  className="p-2"
-                  title="Sign out"
-                >
-                  <LogOut className="w-4 h-4" />
-                </Button>
-              </>
-            ) : (
-              <div className="flex justify-center">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleSignOut}
-                  className="p-2"
-                  title="Sign out"
-                >
-                  <LogOut className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
-          </div>
-          
-          {/* Version */}
-          <div className="mt-2">
-            {!sidebarCollapsed ? (
-              <p className="text-xs text-gray-500 text-center">
-                v1.0.0
-              </p>
-            ) : (
-              <div className="flex justify-center mt-2">
-                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-              </div>
-            )}
-          </div>
-        </div>
+        {renderUserInfo(false)}
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 flex flex-col min-h-0">
+        {/* Mobile Header */}
+        <div className="md:hidden flex items-center justify-between h-16 px-4 bg-white border-b border-gray-200">
+          <h1 className="text-lg font-semibold text-gray-900">
+            Investigaciones Médicas
+          </h1>
+
+          {/* Mobile Menu */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="sm" className="p-2">
+                <Menu className="w-5 h-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64 p-0">
+              <div className="flex flex-col h-full bg-white">
+                {/* Mobile Header */}
+                <SheetHeader className="px-4 py-6 border-b border-gray-200">
+                  <SheetTitle className="text-left text-lg font-semibold text-gray-900">
+                    Investigaciones Médicas
+                  </SheetTitle>
+                </SheetHeader>
+
+                {/* Mobile Navigation */}
+                {renderNavigation(true)}
+
+                {/* Mobile Footer - User Info */}
+                {renderUserInfo(true)}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-16 bg-gray-50">
           {children}
         </main>
       </div>

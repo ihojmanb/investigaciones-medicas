@@ -1,10 +1,11 @@
- import { useState } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, Plus, Users } from "lucide-react"
 import { AdminGuard } from "@/components/auth/PermissionGuard"
 import { UserManagementTab } from "@/components/admin/UserManagementTab"
+import PageHeader from "@/components/PageHeader"
 // import { PermissionManagementTab } from "@/components/admin/PermissionManagementTab"
 // import { AuditLogTab } from "@/components/admin/AuditLogTab"
 // import { ImpersonationPanel } from "@/components/admin/ImpersonationPanel"
@@ -14,16 +15,11 @@ export default function AdminPage() {
 
   return (
     <AdminGuard>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Administration</h1>
-            <p className="text-gray-600">Manage users, permissions, and system settings</p>
-          </div>
-          
-          {/* <ImpersonationPanel /> */}
-        </div>
+      <div>
+        <PageHeader
+          title="Administration"
+          subtitle="Manage users, permissions, and system settings"
+        />
 
         {/* Search */}
         <div className="flex items-center space-x-4">
@@ -40,21 +36,6 @@ export default function AdminPage() {
 
         {/* Admin Tabs */}
         <Tabs defaultValue="users" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-1">
-            <TabsTrigger value="users" className="flex items-center space-x-2">
-              <Users className="h-4 w-4" />
-              <span>Users</span>
-            </TabsTrigger>
-            {/* <TabsTrigger value="permissions" className="flex items-center space-x-2">
-              <Shield className="h-4 w-4" />
-              <span>Permissions</span>
-            </TabsTrigger>
-            <TabsTrigger value="audit" className="flex items-center space-x-2">
-              <Activity className="h-4 w-4" />
-              <span>Audit Log</span>
-            </TabsTrigger> */}
-          </TabsList>
-
           <TabsContent value="users" className="space-y-4">
             <UserManagementTab searchTerm={searchTerm} />
           </TabsContent>

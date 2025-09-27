@@ -1,6 +1,5 @@
-import { useParams, Link, useNavigate } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -10,10 +9,13 @@ import { ArrowLeft, Save } from "lucide-react"
 import { toast } from "sonner"
 import { getTrialWithServices, updateTrial, TrialFormData, TrialWithServices } from "@/services/trialService"
 import FeeScheduleSection from "@/components/FeeScheduleSection"
+import { usePermissions } from "@/hooks/usePermissions"
+import PageHeader from "@/components/PageHeader"
 
 export default function TrialEditPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const permissions = usePermissions()
   const [trial, setTrial] = useState<TrialWithServices | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -92,14 +94,15 @@ export default function TrialEditPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" asChild>
-            <Link to="/trials">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Trials
-            </Link>
-          </Button>
-        </div>
+        <PageHeader
+          title="Edit Trial"
+          subtitle="Modify trial information"
+          backButton={{
+            label: "Back to Trials",
+            icon: <ArrowLeft className="w-4 h-4" />,
+            onClick: () => navigate("/trials")
+          }}
+        />
         
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
@@ -112,14 +115,15 @@ export default function TrialEditPage() {
   if (!trial) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" asChild>
-            <Link to="/trials">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Trials
-            </Link>
-          </Button>
-        </div>
+        <PageHeader
+          title="Edit Trial"
+          subtitle="Modify trial information"
+          backButton={{
+            label: "Back to Trials",
+            icon: <ArrowLeft className="w-4 h-4" />,
+            onClick: () => navigate("/trials")
+          }}
+        />
         
         <div className="text-center py-12">
           <p className="text-gray-500">Trial not found</p>
@@ -129,27 +133,21 @@ export default function TrialEditPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" asChild>
-            <Link to="/trials">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Trials
-            </Link>
-          </Button>
-          
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Edit Trial</h1>
-            <p className="text-gray-600">Modify trial information</p>
-          </div>
-        </div>
-
-        <Button onClick={handleSave} disabled={saving || !formData.name.trim()}>
-          <Save className="w-4 h-4 mr-2" />
-          {saving ? 'Saving...' : 'Save Changes'}
-        </Button>
-      </div>
+    <div>
+      <PageHeader
+        title="Edit Trial"
+        subtitle="Modify trial information"
+        backButton={{
+          label: "Back to Trials",
+          icon: <ArrowLeft className="w-4 h-4" />,
+          onClick: () => navigate("/trials")
+        }}
+        action={{
+          label: saving ? 'Saving...' : 'Save Changes',
+          icon: <Save className="w-4 h-4" />,
+          onClick: handleSave
+        }}
+      />
       
       <Card>
         <CardHeader>
@@ -197,7 +195,7 @@ export default function TrialEditPage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="start_date">Start Date</Label>
               <Input
@@ -230,8 +228,8 @@ export default function TrialEditPage() {
         </CardContent>
       </Card>
       
-      {/* Fee Schedule Section */}
-      {trial && (
+      {/* Fee Schedule Section - Admin Only */}
+      {trial && permissions.canManageTrialServices && (
         <FeeScheduleSection
           trialId={trial.id}
           services={trial.services || []}

@@ -1,10 +1,10 @@
-import { useParams, Link, useNavigate } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import ExpenseForm from "@/components/ExpenseForm"
 import { getExpenseForEdit, updateExpense, ExpenseFormDataForEdit } from "@/services/patientExpenseService"
+import PageHeader from "@/components/PageHeader"
 
 interface ExpenseEditPageProps {}
 
@@ -48,15 +48,16 @@ export default function ExpenseEditPage({}: ExpenseEditPageProps) {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" asChild>
-            <Link to="/patients">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Patients
-            </Link>
-          </Button>
-        </div>
+      <div>
+        <PageHeader
+          title="Edit Expense"
+          subtitle="Modify existing expense submission"
+          backButton={{
+            label: "Back to Patients",
+            icon: <ArrowLeft className="w-4 h-4" />,
+            onClick: () => navigate("/patients")
+          }}
+        />
         
         <div className="text-center py-12">
           <p className="text-gray-500">Loading expense data...</p>
@@ -68,14 +69,15 @@ export default function ExpenseEditPage({}: ExpenseEditPageProps) {
   if (!initialData) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" asChild>
-            <Link to="/patients">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Patients
-            </Link>
-          </Button>
-        </div>
+        <PageHeader
+          title="Edit Expense"
+          subtitle="Modify existing expense submission"
+          backButton={{
+            label: "Back to Patients",
+            icon: <ArrowLeft className="w-4 h-4" />,
+            onClick: () => navigate("/patients")
+          }}
+        />
         
         <div className="text-center py-12">
           <p className="text-gray-500">Expense not found</p>
@@ -85,20 +87,16 @@ export default function ExpenseEditPage({}: ExpenseEditPageProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-4">
-        <Button variant="ghost" asChild>
-          <Link to={`/patients/${initialData.patient}`}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Patient
-          </Link>
-        </Button>
-        
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Edit Expense</h1>
-          <p className="text-gray-600">Modify existing expense submission</p>
-        </div>
-      </div>
+    <div>
+      <PageHeader
+        title="Edit Expense"
+        subtitle="Modify existing expense submission"
+        backButton={{
+          label: "Back to Patient",
+          icon: <ArrowLeft className="w-4 h-4" />,
+          onClick: () => navigate(`/patients/${initialData.patient}`)
+        }}
+      />
       
       <ExpenseForm
         mode="edit"

@@ -56,8 +56,10 @@ export interface TrialService {
   name: string
   amount: number
   currency: 'USD' | 'CLP'
+  is_visit: boolean
+  visit_order: number | null
   created_at: string
-  updated_at: string
+  modified_at: string
 }
 
 export interface ServiceAllocation {
