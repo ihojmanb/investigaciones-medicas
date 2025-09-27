@@ -89,9 +89,10 @@ export default function PatientForm({ mode = 'create', patient, onSuccess }: Pat
           navigate('/patients')
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error ${mode === 'create' ? 'creating' : 'updating'} patient:`, error)
-      toast.error(`Error ${mode === 'create' ? 'creating' : 'updating'} patient`)
+      const errorMessage = error?.message || `Error ${mode === 'create' ? 'creating' : 'updating'} patient`
+      toast.error(errorMessage)
     } finally {
       setSaving(false)
     }

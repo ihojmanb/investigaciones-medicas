@@ -25,7 +25,7 @@ import { Link } from "react-router-dom"
 import { toast } from "sonner"
 
 export default function PatientsPage() {
-  const { patients, loading: patientsLoading } = usePatients()
+  const { patients, loading: patientsLoading, refetch } = usePatients()
   const { trials } = useTrials()
   const [searchTerm, setSearchTerm] = useState("")
   // Filter patients based on search term
@@ -49,12 +49,11 @@ export default function PatientsPage() {
   const handleStatusToggle = async (patientId: string, newStatus: 'active' | 'inactive') => {
     try {
       await updatePatientStatus(patientId, newStatus)
-      toast.success(`Patient status updated to ${newStatus}`)
-      // Refresh the patients list - in a real app you'd use react-query or similar
-      window.location.reload()
+      toast.success(`Patient ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`)
+      await refetch() // Refresh the list
     } catch (error) {
+      console.error('Error updating status:', error)
       toast.error('Failed to update patient status')
-      console.error('Error updating patient status:', error)
     }
   }
 
@@ -111,7 +110,6 @@ export default function PatientsPage() {
               <TableHead>Name</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Active Trials</TableHead>
-              <TableHead>Last Activity</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -153,10 +151,6 @@ export default function PatientsPage() {
                           </Badge>
                         ))}
                       </div>
-                    </TableCell>
-                    <TableCell className="text-gray-500">
-                      {/* Mock data - in real app, calculate from expense submissions */}
-                      {Math.floor(Math.random() * 30) + 1} days ago
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>

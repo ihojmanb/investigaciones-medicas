@@ -63,8 +63,14 @@ export async function createPatient(patientData: PatientFormData): Promise<Patie
 
     if (error) throw error
     return data
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating patient:', error)
+    
+    // Handle duplicate patient code error
+    if (error?.code === '23505' && error?.message?.includes('patients_code_key')) {
+      throw new Error(`El código de paciente '${patientData.code}' ya existe. Por favor, use un código diferente.`)
+    }
+    
     throw error
   }
 }
