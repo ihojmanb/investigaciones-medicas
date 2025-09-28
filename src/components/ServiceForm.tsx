@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Plus, X } from "lucide-react"
 import { TrialService } from "@/types/database"
 import { TrialServiceFormData } from "@/services/trialService"
@@ -17,14 +18,17 @@ interface ServiceFormProps {
 export default function ServiceForm({ service, onSubmit, onCancel }: ServiceFormProps) {
   const [formData, setFormData] = useState<TrialServiceFormData>({
     name: service?.name || "",
-    amount: service?.amount || 0,
-    currency: service?.currency || 'USD'
+    amount: service?.amount?.toString() || "",
+    currency: service?.currency || 'USD',
+    is_visit: service?.is_visit || false,
+    visit_order: service?.visit_order || null
   })
   const [saving, setSaving] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.name.trim() || formData.amount <= 0) return
+    const amount = parseFloat(formData.amount)
+    if (!formData.name.trim() || formData.amount.trim() === '' || amount <= 0) return
 
     try {
       setSaving(true)
@@ -34,7 +38,7 @@ export default function ServiceForm({ service, onSubmit, onCancel }: ServiceForm
     }
   }
 
-  const handleInputChange = (field: keyof TrialServiceFormData, value: string | number) => {
+  const handleInputChange = (field: keyof TrialServiceFormData, value: string | number | boolean | null) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -42,44 +46,44 @@ export default function ServiceForm({ service, onSubmit, onCancel }: ServiceForm
   }
 
   return (
-    <Card>
+    <Card className="mb-6">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          {service ? 'Edit Service' : 'Add Service'}
+          {service ? 'Editar Servicio' : 'Agregar Servicio'}
           <Button variant="ghost" size="sm" onClick={onCancel}>
             <X className="w-4 h-4" />
           </Button>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pb-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Service Name *</Label>
+            <Label htmlFor="name">Nombre del Servicio *</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              placeholder="Enter service name"
+              placeholder="Ingresa el nombre del servicio"
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount *</Label>
+              <Label htmlFor="amount">Monto *</Label>
               <Input
                 id="amount"
                 type="number"
                 min="0"
-                step="0.01"
+                step="1"
                 value={formData.amount}
-                onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
+                onChange={(e) => handleInputChange('amount', e.target.value)}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="currency">Currency *</Label>
+              <Label htmlFor="currency">Moneda *</Label>
               <Select 
                 value={formData.currency} 
                 onValueChange={(value: 'USD' | 'CLP') => handleInputChange('currency', value)}
@@ -95,13 +99,43 @@ export default function ServiceForm({ service, onSubmit, onCancel }: ServiceForm
             </div>
           </div>
 
-          <div className="flex gap-2 pt-4">
-            <Button type="submit" disabled={saving || !formData.name.trim() || formData.amount <= 0}>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="is_visit"
+                checked={formData.is_visit}
+                onCheckedChange={(checked) => {
+                  handleInputChange('is_visit', checked as boolean)
+                  if (!checked) {
+                    handleInputChange('visit_order', null)
+                  }
+                }}
+              />
+              <Label htmlFor="is_visit">Este servicio es una visita</Label>
+            </div>
+
+            {formData.is_visit && (
+              <div className="space-y-2">
+                <Label htmlFor="visit_order">Orden de Visita (opcional - se asigna automáticamente si está vacío)</Label>
+                <Input
+                  id="visit_order"
+                  type="number"
+                  min="1"
+                  value={formData.visit_order || ''}
+                  onChange={(e) => handleInputChange('visit_order', e.target.value ? parseInt(e.target.value) : null)}
+                  placeholder="Dejar vacío para asignación automática"
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-2 pt-4 pb-2">
+            <Button type="submit" disabled={saving || !formData.name.trim() || formData.amount.trim() === '' || parseFloat(formData.amount) <= 0}>
               <Plus className="w-4 h-4 mr-2" />
-              {saving ? 'Saving...' : (service ? 'Update Service' : 'Add Service')}
+              {saving ? 'Guardando...' : (service ? 'Actualizar Servicio' : 'Agregar Servicio')}
             </Button>
             <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
+              Cancelar
             </Button>
           </div>
         </form>

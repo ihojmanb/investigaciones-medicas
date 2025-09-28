@@ -1,11 +1,16 @@
 import ExpenseForm from "@/components/ExpenseForm"
+import PageHeader from "@/components/PageHeader"
 
 export default function ExpenseFormPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Submit Expense</h1>
-        <p className="text-gray-600">Submit a new patient expense reimbursement form</p>
+    <div className="relative">
+      <div className="sticky top-0 z-40 bg-gray-50">
+        <div className="">
+          <PageHeader
+            title="Reembolso de Transporte"
+            subtitle="Completa los campos obligatorios y agrega las secciones opcionales según sea necesario."
+          />
+        </div>
       </div>
       
       <ExpenseForm />

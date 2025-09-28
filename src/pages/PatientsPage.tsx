@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
+import { Card } from "@/components/ui/card"
 import { 
   Table, 
   TableBody, 
@@ -19,18 +21,25 @@ import { Badge } from "@/components/ui/badge"
 import { Search, MoreHorizontal, Eye, Edit, Plus } from "lucide-react"
 import { usePatients } from "@/hooks/usePatients"
 import { useTrials } from "@/hooks/useTrials"
-import { Link } from "react-router-dom"
+import { formatPatientName, updatePatientStatus } from "@/services/patientService"
+import { Link, useNavigate } from "react-router-dom"
+import { toast } from "sonner"
+import PageHeader from "@/components/PageHeader"
 
 export default function PatientsPage() {
-  const { patients, loading: patientsLoading } = usePatients()
+  const { patients, loading: patientsLoading, refetch } = usePatients()
   const { trials } = useTrials()
+  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState("")
-
   // Filter patients based on search term
-  const filteredPatients = patients.filter(patient =>
-    patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.code.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredPatients = patients.filter(patient => {
+    const fullName = formatPatientName(patient).toLowerCase()
+    const searchLower = searchTerm.toLowerCase()
+    return fullName.includes(searchLower) || 
+           patient.code.toLowerCase().includes(searchLower) ||
+           patient.first_name.toLowerCase().includes(searchLower) ||
+           patient.first_surname.toLowerCase().includes(searchLower)
+  })
 
   // Helper function to get trial names (in real app, you'd have patient-trial relationships)
   const getPatientTrials = (patientId: string) => {
@@ -39,43 +48,50 @@ export default function PatientsPage() {
     return trials.slice(0, Math.floor(Math.random() * 2) + 1)
   }
 
+  // Handle status toggle
+  const handleStatusToggle = async (patientId: string, newStatus: 'active' | 'inactive') => {
+    try {
+      await updatePatientStatus(patientId, newStatus)
+      toast.success(`Paciente ${newStatus === 'active' ? 'activado' : 'desactivado'} exitosamente`)
+      await refetch() // Refresh the list
+    } catch (error) {
+      console.error('Error updating status:', error)
+      toast.error('Error al actualizar el estado del paciente')
+    }
+  }
+
   if (patientsLoading) {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Patients</h1>
-          <p className="text-gray-600">Manage patient information and expense history</p>
+          <h1 className="text-2xl font-bold text-gray-900">Pacientes</h1>
+          <p className="text-gray-600">Gestionar información de pacientes e historial de gastos</p>
         </div>
         <div className="text-center py-12">
-          <p className="text-gray-500">Loading patients...</p>
+          <p className="text-gray-500">Cargando pacientes...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Patients</h1>
-          <p className="text-gray-600">Manage patient information and expense history</p>
-        </div>
-        
-        <Button asChild>
-          <Link to="/patients/new">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Patient
-          </Link>
-        </Button>
-      </div>
+    <div>
+        <PageHeader
+          title="Pacientes"
+          subtitle="Gestionar información de pacientes e historial de gastos"
+          action={{
+            label: "Agregar Paciente",
+            icon: <Plus className="w-4 h-4" />,
+            onClick: () => navigate("/patients/new")
+          }}
+        />
 
-      {/* Search */}
-      <div className="flex items-center space-x-4">
+      {/* Search - Keep the search bar below the header */}
+      <div className="flex items-center space-x-4 mb-4">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
-            placeholder="Search by name or code..."
+            placeholder="Buscar por nombre o código..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -83,24 +99,24 @@ export default function PatientsPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-lg border">
+      {/* Desktop Table */}
+      <div className="hidden md:block bg-white rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Patient Code</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Active Trials</TableHead>
-              <TableHead>Last Activity</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Código Paciente</TableHead>
+              <TableHead>Nombre</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Estudios Activos</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredPatients.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-12">
+                <TableCell colSpan={6} className="text-center py-12">
                   <p className="text-gray-500">
-                    {searchTerm ? "No patients found matching your search." : "No patients found."}
+                    {searchTerm ? "No se encontraron pacientes que coincidan con tu búsqueda." : "No se encontraron pacientes."}
                   </p>
                 </TableCell>
               </TableRow>
@@ -111,7 +127,20 @@ export default function PatientsPage() {
                 return (
                   <TableRow key={patient.id}>
                     <TableCell className="font-medium">{patient.code}</TableCell>
-                    <TableCell>{patient.name}</TableCell>
+                    <TableCell>{formatPatientName(patient)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          checked={patient.status === 'active'}
+                          onCheckedChange={(checked) => 
+                            handleStatusToggle(patient.id, checked ? 'active' : 'inactive')
+                          }
+                        />
+                        <span className="text-sm text-gray-600 capitalize">
+                          {patient.status}
+                        </span>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {patientTrials.map((trial) => (
@@ -120,10 +149,6 @@ export default function PatientsPage() {
                           </Badge>
                         ))}
                       </div>
-                    </TableCell>
-                    <TableCell className="text-gray-500">
-                      {/* Mock data - in real app, calculate from expense submissions */}
-                      {Math.floor(Math.random() * 30) + 1} days ago
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -136,13 +161,13 @@ export default function PatientsPage() {
                           <DropdownMenuItem asChild>
                             <Link to={`/patients/${patient.id}`}>
                               <Eye className="mr-2 h-4 w-4" />
-                              View Details
+                              Ver Detalles
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link to={`/patients/${patient.id}/edit`}>
                               <Edit className="mr-2 h-4 w-4" />
-                              Edit Patient
+                              Editar Paciente
                             </Link>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -154,6 +179,86 @@ export default function PatientsPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {filteredPatients.length === 0 ? (
+          <Card className="p-8 text-center">
+            <p className="text-gray-500">
+              {searchTerm ? "No se encontraron pacientes que coincidan con tu búsqueda." : "No se encontraron pacientes."}
+            </p>
+          </Card>
+        ) : (
+          filteredPatients.map((patient) => {
+            const patientTrials = getPatientTrials(patient.id)
+            
+            return (
+              <Card key={patient.id} className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-mono text-sm text-gray-500">{patient.code}</span>
+                      <Badge variant={patient.status === 'active' ? 'default' : 'secondary'}>
+                        {patient.status === 'active' ? 'Activo' : 'Inactivo'}
+                      </Badge>
+                    </div>
+                    <h3 className="font-medium text-lg">{formatPatientName(patient)}</h3>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link to={`/patients/${patient.id}`}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          Ver Detalles
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={`/patients/${patient.id}/edit`}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Editar Paciente
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500">Control de Estado:</span>
+                    <Switch
+                      checked={patient.status === 'active'}
+                      onCheckedChange={(checked) => handleStatusToggle(patient.id, checked ? 'active' : 'inactive')}
+                    />
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Estudios Activos:</span>
+                    <span className="font-medium">{patientTrials.length}</span>
+                  </div>
+                  
+                  {patientTrials.length > 0 && (
+                    <div className="pt-2 border-t">
+                      <p className="text-gray-500 text-xs mb-1">Estudios:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {patientTrials.map((trial) => (
+                          <Badge key={trial.id} variant="outline" className="text-xs">
+                            {trial.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            )
+          })
+        )}
       </div>
     </div>
   )

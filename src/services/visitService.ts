@@ -1,40 +1,111 @@
 import { supabase } from '@/lib/supabaseClient'
-import { VisitType } from '@/types/database'
+
+export interface Visit {
+  id: string
+  trial_id: string
+  name: string
+  visit_order: number
+  created_at: string
+}
 
 export interface EligibleVisit {
   id: string
   name: string
-  order_number: number
+  visit_order: number
   is_completed: boolean
 }
 
 /**
- * Get all visit types for a trial, ordered by sequence
+ * Get all visits for a trial from the visits view (operators use this)
  */
-export const getVisitTypesForTrial = async (trialId: string): Promise<VisitType[]> => {
-  const { data, error } = await supabase
-    .from('visit_types')
-    .select('*')
-    .eq('trial_id', trialId)
-    .order('order_number', { ascending: true })
+export async function getVisitsForTrial(trialId: string): Promise<Visit[]> {
+  try {
+    const { data, error } = await supabase
+      .from('trial_services')
+      .select('*')
+      .eq('trial_id', trialId)
+      .eq('is_visit', true)
+      .order('visit_order')
 
-  if (error) throw error
-  return data || []
+    if (error) throw error
+    
+    // Map trial_services to Visit format
+    return (data || []).map(service => ({
+      id: service.id,
+      trial_id: service.trial_id,
+      name: service.name,
+      visit_order: service.visit_order || 0,
+      created_at: service.created_at
+    }))
+  } catch (error) {
+    console.error('Error fetching visits for trial:', error)
+    throw error
+  }
 }
 
 /**
- * Get eligible visits for a patient in a trial
- * A visit is eligible if:
- * 1. It's the next visit in sequence (no gaps allowed)
- * 2. The patient hasn't already completed it
+ * Get the next available visit order number for a trial
  */
-export const getEligibleVisitsForPatient = async (
+export async function getNextVisitOrder(trialId: string): Promise<number> {
+  try {
+    const { data, error } = await supabase
+      .from('trial_services')
+      .select('visit_order')
+      .eq('trial_id', trialId)
+      .eq('is_visit', true)
+      .order('visit_order', { ascending: false })
+      .limit(1)
+
+    if (error) throw error
+    
+    // If no visits exist, start with 1, otherwise increment the highest order
+    return data && data.length > 0 ? data[0].visit_order + 1 : 1
+  } catch (error) {
+    console.error('Error getting next visit order:', error)
+    throw error
+  }
+}
+
+/**
+ * Get a single visit by ID
+ */
+export async function getVisitById(visitId: string): Promise<Visit | null> {
+  try {
+    const { data, error } = await supabase
+      .from('trial_services')
+      .select('*')
+      .eq('id', visitId)
+      .eq('is_visit', true)
+      .single()
+
+    if (error) throw error
+    
+    if (!data) return null
+    
+    // Map trial_service to Visit format
+    return {
+      id: data.id,
+      trial_id: data.trial_id,
+      name: data.name,
+      visit_order: data.visit_order || 0,
+      created_at: data.created_at
+    }
+  } catch (error) {
+    console.error('Error fetching visit by id:', error)
+    throw error
+  }
+}
+
+/**
+ * Get eligible visits for a patient in a trial (with completion status)
+ */
+export async function getEligibleVisitsForPatient(
   patientId: string, 
   trialId: string
-): Promise<EligibleVisit[]> => {
+): Promise<EligibleVisit[]> {
   try {
-    // Get all visit types for the trial
-    const visitTypes = await getVisitTypesForTrial(trialId)
+    // Get all visits for the trial
+    const visits = await getVisitsForTrial(trialId)
     
     // Get completed visits for this patient in this trial
     const { data: completedExpenses, error } = await supabase
@@ -49,15 +120,14 @@ export const getEligibleVisitsForPatient = async (
       completedExpenses?.map(expense => expense.visit_type) || []
     )
 
-    // Map visit types to eligible visits with completion status
-    const eligibleVisits: EligibleVisit[] = visitTypes.map(visitType => ({
-      id: visitType.id,
-      name: visitType.name,
-      order_number: visitType.order_number,
-      is_completed: completedVisitNames.has(visitType.name)
+    // Map visits to eligible visits with completion status
+    const eligibleVisits: EligibleVisit[] = visits.map(visit => ({
+      id: visit.id,
+      name: visit.name,
+      visit_order: visit.visit_order,
+      is_completed: completedVisitNames.has(visit.name)
     }))
 
-    // Return all visits (both completed and uncompleted) for flexibility
     return eligibleVisits
 
   } catch (error) {
@@ -69,11 +139,11 @@ export const getEligibleVisitsForPatient = async (
 /**
  * Check if a patient can register a specific visit
  */
-export const canPatientRegisterVisit = async (
+export async function canPatientRegisterVisit(
   patientId: string,
   trialId: string,
   visitName: string
-): Promise<boolean> => {
+): Promise<boolean> {
   try {
     const eligibleVisits = await getEligibleVisitsForPatient(patientId, trialId)
     const targetVisit = eligibleVisits.find(v => v.name === visitName)

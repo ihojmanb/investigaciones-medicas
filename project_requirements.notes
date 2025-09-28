@@ -45,7 +45,14 @@ Los formularios ty las tablas ienen que tener restricción de acceso
 la lista de precios de cada estudio detalla el costo de cada visita
 donde estan los precios
 
+NEW
+patient-expenses should have the right visit type
 
+we can see expenses details
+
+regular services should not have allocations available
+
+service_allocation should have two types: investigador principar, subinvestigador. this should be a select
 
 
 

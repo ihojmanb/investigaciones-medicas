@@ -19,6 +19,9 @@ export default defineConfig({
     emptyOutDir: true,
     chunkSizeWarningLimit: 1000,
   },
+  esbuild: {
+    drop: ['console', 'debugger'],
+  },
   server: {
     fs: {
       strict: true,

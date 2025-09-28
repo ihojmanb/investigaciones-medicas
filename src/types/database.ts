@@ -1,8 +1,13 @@
 export interface Patient {
   id: string
   code: string
-  name: string
+  first_name: string
+  second_name?: string
+  first_surname: string
+  second_surname?: string
+  status: 'active' | 'inactive'
   created_at: string
+  modified_at: string
 }
 
 export interface Trial {
@@ -17,13 +22,6 @@ export interface Trial {
   created_at: string
 }
 
-export interface VisitType {
-  id: string
-  trial_id: string
-  name: string
-  order_number: number
-  created_at: string
-}
 
 export interface PatientExpense {
   id: string
@@ -51,8 +49,10 @@ export interface TrialService {
   name: string
   amount: number
   currency: 'USD' | 'CLP'
+  is_visit: boolean
+  visit_order: number | null
   created_at: string
-  updated_at: string
+  modified_at: string
 }
 
 export interface ServiceAllocation {
@@ -61,6 +61,7 @@ export interface ServiceAllocation {
   name: string
   amount: number
   currency: 'USD' | 'CLP'
+  allocation_type: 'principal_investigator' | 'sub_investigator'
   created_at: string
   updated_at: string
 }

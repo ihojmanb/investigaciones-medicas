@@ -3,37 +3,144 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Layout from "@/components/Layout";
+import { RouteGuard, AuthRoute } from "@/components/auth/RouteGuard";
+import LoginPage from "@/pages/LoginPage";
 import ExpenseFormPage from "@/pages/ExpenseFormPage";
 import ExpenseEditPage from "@/pages/ExpenseEditPage";
 import PatientsPage from "@/pages/PatientsPage";
 import PatientDetailPage from "@/pages/PatientDetailPage";
+import PatientFormPage from "@/pages/PatientFormPage";
+import PatientEditPage from "@/pages/PatientEditPage";
 import TrialsPage from "@/pages/TrialsPage";
 import TrialFormPage from "@/pages/TrialFormPage";
 import TrialEditPage from "@/pages/TrialEditPage";
 import ReportsPage from "@/pages/ReportsPage";
+import AdminPage from "@/pages/AdminPage";
 import NotFound from "@/pages/not-found";
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router>
-          <Routes>
-            <Route path="/" element={<Navigate to="/expenses/new" replace />} />
-            <Route path="/expenses/new" element={<Layout><ExpenseFormPage /></Layout>} />
-            <Route path="/expenses/:id/edit" element={<Layout><ExpenseEditPage /></Layout>} />
-            <Route path="/patients" element={<Layout><PatientsPage /></Layout>} />
-            <Route path="/patients/:id" element={<Layout><PatientDetailPage /></Layout>} />
-            <Route path="/trials" element={<Layout><TrialsPage /></Layout>} />
-            <Route path="/trials/new" element={<Layout><TrialFormPage /></Layout>} />
-            <Route path="/trials/:id/edit" element={<Layout><TrialEditPage /></Layout>} />
-            <Route path="/reports" element={<Layout><ReportsPage /></Layout>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Router>
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router>
+            <Routes>
+              <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
+              <Route path="/" element={<Navigate to="/expenses/new" replace />} />
+              <Route
+                path="/expenses/new"
+                element={
+                  <RouteGuard>
+                    <Layout><ExpenseFormPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/expenses/:id/edit"
+                element={
+                  <RouteGuard>
+                    <Layout><ExpenseEditPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/patients"
+                element={
+                  <RouteGuard>
+                    <Layout><PatientsPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/patients/:id"
+                element={
+                  <RouteGuard>
+                    <Layout><PatientDetailPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+
+
+              <Route
+                path="/patients/new"
+                element={
+                  <RouteGuard>
+                    <Layout><PatientFormPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/patients/:id"
+                element={
+                  <RouteGuard>
+                    <Layout><PatientDetailPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/patients/:id/edit"
+                element={
+                  <RouteGuard>
+                    <Layout><PatientEditPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+
+              <Route
+                path="/trials"
+                element={
+                  <RouteGuard>
+                    <Layout><TrialsPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/trials/new"
+                element={
+                  <RouteGuard>
+                    <Layout><TrialFormPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/trials/:id/edit"
+                element={
+                  <RouteGuard>
+                    <Layout><TrialEditPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/reports"
+                element={
+                  <RouteGuard>
+                    <Layout><ReportsPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <RouteGuard>
+                    <Layout><AdminPage /></Layout>
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="*"
+                element={
+                  <RouteGuard>
+                    <NotFound />
+                  </RouteGuard>
+                }
+              />
+            </Routes>
+          </Router>
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

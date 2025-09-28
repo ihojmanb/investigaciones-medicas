@@ -54,7 +54,7 @@ export default function TrialForm({ mode = 'create', trial, onSuccess }: TrialFo
   const handleSubmit = async () => {
     // Basic validation
     if (!formData.name.trim()) {
-      toast.error('Trial name is required')
+      toast.error('El nombre del estudio es obligatorio')
       return
     }
 
@@ -63,7 +63,7 @@ export default function TrialForm({ mode = 'create', trial, onSuccess }: TrialFo
       
       if (mode === 'create') {
         await createTrial(formData)
-        toast.success('Trial created successfully')
+        toast.success('Estudio clínico creado exitosamente')
         if (onSuccess) {
           onSuccess()
         } else {
@@ -71,7 +71,7 @@ export default function TrialForm({ mode = 'create', trial, onSuccess }: TrialFo
         }
       } else if (mode === 'edit' && trial) {
         await updateTrial(trial.id, formData)
-        toast.success('Trial updated successfully')
+        toast.success('Estudio clínico actualizado exitosamente')
         if (onSuccess) {
           onSuccess()
         } else {
@@ -80,7 +80,7 @@ export default function TrialForm({ mode = 'create', trial, onSuccess }: TrialFo
       }
     } catch (error) {
       console.error(`Error ${mode === 'create' ? 'creating' : 'updating'} trial:`, error)
-      toast.error(`Error ${mode === 'create' ? 'creating' : 'updating'} trial`)
+      toast.error(`Error al ${mode === 'create' ? 'crear' : 'actualizar'} el estudio clínico`)
     } finally {
       setSaving(false)
     }
@@ -90,55 +90,55 @@ export default function TrialForm({ mode = 'create', trial, onSuccess }: TrialFo
     <Card>
       <CardHeader>
         <CardTitle>
-          {mode === 'create' ? 'Create New Trial' : 'Edit Trial'}
+          {mode === 'create' ? 'Crear Nuevo Estudio Clínico' : 'Editar Estudio Clínico'}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="name">Trial Name *</Label>
+          <Label htmlFor="name">Nombre del Estudio *</Label>
           <Input
             id="name"
             value={formData.name}
             onChange={(e) => handleInputChange('name', e.target.value)}
-            placeholder="Enter trial name"
+            placeholder="Ingresa el nombre del estudio"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="sponsor">Sponsor</Label>
+          <Label htmlFor="sponsor">Laboratorio</Label>
           <Input
             id="sponsor"
             value={formData.sponsor}
             onChange={(e) => handleInputChange('sponsor', e.target.value)}
-            placeholder="Enter sponsor name"
+            placeholder="Ingresa el nombre del laboratorio"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description">Descripción</Label>
           <Textarea
             id="description"
             value={formData.description}
             onChange={(e) => handleInputChange('description', e.target.value)}
-            placeholder="Enter trial description"
+            placeholder="Ingresa la descripción del estudio"
             rows={4}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="medical_specialty">Medical Specialty</Label>
+          <Label htmlFor="medical_specialty">Especialidad Médica</Label>
           <Input
             id="medical_specialty"
             value={formData.medical_specialty}
             onChange={(e) => handleInputChange('medical_specialty', e.target.value)}
-            placeholder="Enter medical specialty (e.g., Cardiology, Oncology)"
+            placeholder="Ingresa la especialidad médica (ej: Cardiología, Oncología)"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="start_date">Start Date</Label>
+            <Label htmlFor="start_date">Fecha de Inicio</Label>
             <Input
               id="start_date"
               type="date"
@@ -148,7 +148,7 @@ export default function TrialForm({ mode = 'create', trial, onSuccess }: TrialFo
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="end_date">End Date</Label>
+            <Label htmlFor="end_date">Fecha de Fin</Label>
             <Input
               id="end_date"
               type="date"
@@ -164,20 +164,20 @@ export default function TrialForm({ mode = 'create', trial, onSuccess }: TrialFo
             checked={formData.active}
             onCheckedChange={(checked) => handleInputChange('active', checked)}
           />
-          <Label htmlFor="active">Active Trial</Label>
+          <Label htmlFor="active">Estudio Activo</Label>
         </div>
 
         <div className="flex gap-2 pt-4">
           <Button onClick={handleSubmit} disabled={saving || !formData.name.trim()}>
             <Save className="w-4 h-4 mr-2" />
-            {saving ? 'Saving...' : (mode === 'create' ? 'Create Trial' : 'Update Trial')}
+            {saving ? 'Guardando...' : (mode === 'create' ? 'Crear Estudio' : 'Actualizar Estudio')}
           </Button>
           <Button 
             type="button" 
             variant="outline" 
             onClick={() => navigate('/trials')}
           >
-            Cancel
+            Cancelar
           </Button>
         </div>
       </CardContent>

@@ -1,15 +1,18 @@
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CalendarIcon, CheckCircle2 } from "lucide-react"
+import { CalendarIcon, CheckCircle2, ChevronsUpDown, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { format } from "date-fns"
 import { usePatients } from "@/hooks/usePatients"
 import { useTrials } from "@/hooks/useTrials"
 import { getEligibleVisitsForPatient, EligibleVisit } from "@/services/visitService"
+import { formatPatientName } from "@/services/patientService"
 import { useEffect, useState } from "react"
+import { cn } from "@/lib/utils"
 
 interface MandatoryFieldsProps {
   patient: string
@@ -40,6 +43,8 @@ export default function MandatoryFields({
   const { trials, loading: trialsLoading } = useTrials()
   const [eligibleVisits, setEligibleVisits] = useState<EligibleVisit[]>([])
   const [visitsLoading, setVisitsLoading] = useState(false)
+  const [patientOpen, setPatientOpen] = useState(false)
+  const [trialOpen, setTrialOpen] = useState(false)
 
   // Load eligible visits when patient and trial are selected
   useEffect(() => {
@@ -67,41 +72,115 @@ export default function MandatoryFields({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <Label htmlFor="patient" className="text-sm font-medium">
               Paciente *
             </Label>
-            <Select value={patient} onValueChange={onPatientChange} disabled={patientsLoading}>
-              <SelectTrigger data-testid="select-patient">
-                <SelectValue placeholder={patientsLoading ? "Cargando..." : "Selecciona un paciente"} />
-              </SelectTrigger>
-              <SelectContent>
-                {patients.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>{p.code} - {p.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={patientOpen} onOpenChange={setPatientOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={patientOpen}
+                  className="w-full justify-between"
+                  disabled={patientsLoading}
+                  data-testid="select-patient"
+                >
+                  {patient
+                    ? patients.find((p) => p.id === patient)
+                      ? `${patients.find((p) => p.id === patient)?.code} - ${formatPatientName(patients.find((p) => p.id === patient)!)}`
+                      : "Selecciona un paciente"
+                    : patientsLoading ? "Cargando..." : "Selecciona un paciente"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full max-h-[300px] p-0" side="bottom" align="start">
+                <Command>
+                  <CommandInput placeholder="Buscar paciente..." />
+                  <CommandList>
+                    <CommandEmpty>No se encontró paciente.</CommandEmpty>
+                    <CommandGroup>
+                      {patients.map((p) => (
+                        <CommandItem
+                          key={p.id}
+                          value={`${p.code} ${formatPatientName(p)}`}
+                          onSelect={() => {
+                            onPatientChange(p.id)
+                            setPatientOpen(false)
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              patient === p.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {p.code} - {formatPatientName(p)}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="trial" className="text-sm font-medium">
               Ensayo Clínico *
             </Label>
-            <Select value={trial} onValueChange={onTrialChange} disabled={trialsLoading}>
-              <SelectTrigger data-testid="select-trial">
-                <SelectValue placeholder={trialsLoading ? "Cargando..." : "Selecciona un ensayo"} />
-              </SelectTrigger>
-              <SelectContent>
-                {trials.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>{t.name} - {t.sponsor}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={trialOpen} onOpenChange={setTrialOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={trialOpen}
+                  className="w-full justify-between"
+                  disabled={trialsLoading}
+                  data-testid="select-trial"
+                >
+                  {trial
+                    ? trials.find((t) => t.id === trial)
+                      ? `${trials.find((t) => t.id === trial)?.name} - ${trials.find((t) => t.id === trial)?.sponsor}`
+                      : "Selecciona un ensayo"
+                    : trialsLoading ? "Cargando..." : "Selecciona un estudio clínico"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full max-h-[300px] p-0" side="bottom" align="start">
+                <Command>
+                  <CommandInput placeholder="Buscar estudio clínico..." />
+                  <CommandList>
+                    <CommandEmpty>No se encontró estudio clínico.</CommandEmpty>
+                    <CommandGroup>
+                      {trials.map((t) => (
+                        <CommandItem
+                          key={t.id}
+                          value={`${t.name} ${t.sponsor || ''}`}
+                          onSelect={() => {
+                            onTrialChange(t.id)
+                            setTrialOpen(false)
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              trial === t.id ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {t.name} - {t.sponsor}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <Label htmlFor="visit" className="text-sm font-medium">
               Visita *
@@ -119,7 +198,7 @@ export default function MandatoryFields({
                   "Selecciona una visita"
                 } />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent side="bottom" position="popper" className="max-h-[300px]">
                 {eligibleVisits
                   .filter(v => mode === 'edit' ? v.is_completed : true)
                   .map((v) => (
@@ -150,7 +229,7 @@ export default function MandatoryFields({
                   {visitDate ? format(visitDate, "dd-MM-yyyy") : "Seleccionar fecha"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-0" side="bottom" align="start">
                 <Calendar
                   mode="single"
                   selected={visitDate}

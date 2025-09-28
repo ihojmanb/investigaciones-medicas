@@ -17,19 +17,34 @@ export const uploadReceiptFile = async (
     // This ensures only one file per expense type per visit
     const fileExtension = file.name.split('.').pop()
     const fileName = `${trialName}/${patientCode}/${visitName}/${expenseType}/receipt.${fileExtension}`
+    
 
     // First, try to remove any existing files for this expense type
     try {
-      const { data: existingFiles } = await supabase.storage
+      console.log('🧹 Checking for existing files in path:', `${trialName}/${patientCode}/${visitName}/${expenseType}`)
+      const { data: existingFiles, error: listError } = await supabase.storage
         .from('expenses')
         .list(`${trialName}/${patientCode}/${visitName}/${expenseType}`)
       
+      if (listError) {
+        console.warn('Error listing existing files:', listError)
+      }
+      
       if (existingFiles && existingFiles.length > 0) {
+        console.log('🗑️ Found existing files, removing:', existingFiles.map(f => f.name))
         // Remove all existing files in this path
         const filesToRemove = existingFiles.map(f => `${trialName}/${patientCode}/${visitName}/${expenseType}/${f.name}`)
-        await supabase.storage
+        const { error: removeError } = await supabase.storage
           .from('expenses')
           .remove(filesToRemove)
+        
+        if (removeError) {
+          console.warn('Error removing existing files:', removeError)
+        } else {
+          console.log('✅ Successfully removed existing files')
+        }
+      } else {
+        console.log('📂 No existing files found')
       }
     } catch (cleanupError) {
       console.warn('Error cleaning up existing files:', cleanupError)
@@ -37,6 +52,7 @@ export const uploadReceiptFile = async (
     }
 
     // Upload file to Supabase storage
+    console.log('⬆️ Uploading file to path:', fileName)
     const { data, error } = await supabase.storage
       .from('expenses')
       .upload(fileName, file, {
@@ -45,16 +61,17 @@ export const uploadReceiptFile = async (
       })
 
     if (error) {
+      console.error('❌ Upload failed:', error)
       return { url: null, error: error.message }
     }
 
-    // Get public URL
-    const { data: urlData } = supabase.storage
-      .from('expenses')
-      .getPublicUrl(data.path)
+    console.log('✅ Upload successful:', data)
 
-    return { url: urlData.publicUrl, error: null }
+    // Return the file path (not the full URL) so it can be used with createSignedUrl
+    console.log('📁 Returning file path for storage:', data.path)
+    return { url: data.path, error: null }
   } catch (error) {
+    console.error('💥 Unexpected error during file upload:', error)
     return { 
       url: null, 
       error: error instanceof Error ? error.message : 'Error uploading file' 
