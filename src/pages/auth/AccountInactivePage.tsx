@@ -4,7 +4,7 @@ import { AlertTriangle } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function AccountInactivePage() {
-  const { signOut, profile } = useAuth()
+  const { signOut } = useAuth()
 
   const handleSignOut = async () => {
     await signOut()
@@ -25,9 +25,6 @@ export default function AccountInactivePage() {
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-sm text-yellow-800">
-                Account: <strong>{profile?.email}</strong>
-              </p>
               <p className="text-xs text-yellow-600 mt-1">
                 Please contact your administrator to reactivate your account
               </p>
