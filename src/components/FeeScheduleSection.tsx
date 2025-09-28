@@ -203,12 +203,16 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
                               <Badge variant="outline" className="text-xs self-start">
                                 {formatCurrency(service.amount, service.currency)} {service.currency}
                               </Badge>
-                              <Badge variant={totalAllocated === service.amount ? "default" : "secondary"} className="text-xs self-start">
-                                Asignado: {formatCurrency(totalAllocated, service.currency)} {service.currency}
-                              </Badge>
-                              <span className="text-sm text-gray-500">
-                                ({allocationsCount} prestaciones)
-                              </span>
+                              {service.is_visit && (
+                                <Badge variant={totalAllocated === service.amount ? "default" : "secondary"} className="text-xs self-start">
+                                  Asignado: {formatCurrency(totalAllocated, service.currency)} {service.currency}
+                                </Badge>
+                              )}
+                              {service.is_visit && (
+                                <span className="text-sm text-gray-500">
+                                  ({allocationsCount} prestaciones)
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
