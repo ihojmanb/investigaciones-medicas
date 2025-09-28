@@ -312,12 +312,7 @@ export default function ExpenseForm({
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Form */}
           <div className="flex-1 space-y-6">
-            <div className="space-y-2">
-              <h1 className="text-2xl font-semibold text-foreground">Reembolso de Transporte</h1>
-              <p className="text-muted-foreground">
-                Completa los campos obligatorios y agrega las secciones opcionales según sea necesario.
-              </p>
-            </div>
+
             
             {/* Mandatory Fields */}
             <MandatoryFields
@@ -473,7 +468,7 @@ export default function ExpenseForm({
           
           {/* Progress Sidebar */}
           <div className="lg:w-80">
-            <div className="sticky top-8">
+            <div className="sticky top-24">
               <ProgressIndicator
                 mandatoryComplete={mandatoryComplete}
                 optionalSections={optionalSections}

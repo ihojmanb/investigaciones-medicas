@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { Receipt, Users, FlaskConical, BarChart3, Menu, X, Settings, LogOut, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
+import { 
   Sheet,
   SheetContent,
   SheetHeader,
@@ -70,13 +70,13 @@ export default function Layout({ children }: LayoutProps) {
   const { session, signOut } = useAuth()
   const { profile, loading: profileLoading } = useProfile()
   const featureAccess = useFeatureAccess()
-
+  
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     // Initialize from localStorage, default to false
     const saved = localStorage.getItem('sidebar-collapsed')
     return saved ? JSON.parse(saved) : false
   })
-
+  
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleSignOut = async () => {
@@ -97,7 +97,7 @@ export default function Layout({ children }: LayoutProps) {
   }, [sidebarCollapsed])
 
   // Filter navigation items based on permissions
-  const navigation = navigationConfig.filter(item =>
+  const navigation = navigationConfig.filter(item => 
     featureAccess[item.showWhen]
   )
 
@@ -110,9 +110,9 @@ export default function Layout({ children }: LayoutProps) {
   const renderNavigation = (isMobile = false) => (
     <nav className={cn("space-y-2", isMobile ? "flex-1 px-4 py-6" : "flex-1 px-4 py-6")}>
       {navigation.map((item) => {
-        const isActive = location.pathname === item.href ||
+        const isActive = location.pathname === item.href || 
           (item.href !== "/" && location.pathname.startsWith(item.href))
-
+        
         return (
           <Link
             key={item.name}
@@ -120,10 +120,10 @@ export default function Layout({ children }: LayoutProps) {
             onClick={isMobile ? handleMobileNavClick : undefined}
             className={cn(
               "flex items-center text-sm font-medium rounded-md relative group",
-              isMobile
-                ? "px-3 py-2"
-                : sidebarCollapsed
-                  ? "px-2 justify-center"
+              isMobile 
+                ? "px-3 py-2" 
+                : sidebarCollapsed 
+                  ? "px-2 justify-center" 
                   : "px-3 py-2",
               isActive
                 ? "bg-primary text-primary-foreground"
@@ -135,12 +135,12 @@ export default function Layout({ children }: LayoutProps) {
               "flex-shrink-0",
               isMobile
                 ? "w-5 h-5 mr-3"
-                : sidebarCollapsed
-                  ? "w-5 h-5 m-2"
+                : sidebarCollapsed 
+                  ? "w-5 h-5 m-2" 
                   : "w-5 h-5 mr-3"
             )} />
             {(isMobile || !sidebarCollapsed) && item.name}
-
+            
             {/* Tooltip for collapsed state */}
             {sidebarCollapsed && !isMobile && (
               <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
@@ -209,7 +209,7 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         )}
       </div>
-
+      
       {/* Version */}
       <div className="mt-2">
         {(isMobile || !sidebarCollapsed) ? (
@@ -269,7 +269,7 @@ export default function Layout({ children }: LayoutProps) {
           <h1 className="text-lg font-semibold text-gray-900">
             Investigaciones Médicas
           </h1>
-
+          
           {/* Mobile Menu */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
@@ -296,7 +296,7 @@ export default function Layout({ children }: LayoutProps) {
           </Sheet>
         </div>
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-16 bg-gray-50">
+        <main className="flex-1 overflow-y-auto px-4 my-2 md:px-6 pb-16 bg-gray-50">
           {children}
         </main>
       </div>
