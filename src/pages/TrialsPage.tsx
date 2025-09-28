@@ -47,13 +47,13 @@ export default function TrialsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Trials</h1>
-          <p className="text-gray-600">Manage clinical trials and study protocols</p>
+          <h1 className="text-2xl font-bold text-gray-900">Estudios Clínicos</h1>
+          <p className="text-gray-600">Gestionar estudios clínicos y protocolos de estudio</p>
         </div>
         
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading trials...</p>
+          <p className="text-gray-500">Cargando estudios clínicos...</p>
         </div>
       </div>
     )
@@ -62,10 +62,10 @@ export default function TrialsPage() {
   return (
     <div className="">
       <PageHeader
-        title="Trials"
-        subtitle="Manage clinical trials and study protocols"
+        title="Estudios Clínicos"
+        subtitle="Gestionar estudios clínicos y protocolos de estudio"
         action={{
-          label: "New Trial",
+          label: "Nuevo Estudio",
           icon: <Plus className="w-4 h-4" />,
           onClick: () => navigate('/trials/new')
         }}
@@ -75,20 +75,20 @@ export default function TrialsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Trials</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Estudios</CardTitle>
             <Building className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{trials.length}</div>
             <p className="text-xs text-muted-foreground">
-              Active clinical trials
+              Estudios clínicos activos
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Trials</CardTitle>
+            <CardTitle className="text-sm font-medium">Estudios Activos</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -99,14 +99,14 @@ export default function TrialsPage() {
               }).length}
             </div>
             <p className="text-xs text-muted-foreground">
-              Currently running
+              Actualmente en curso
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sponsors</CardTitle>
+            <CardTitle className="text-sm font-medium">Laboratorios</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -114,7 +114,7 @@ export default function TrialsPage() {
               {new Set(trials.map(t => t.sponsor)).size}
             </div>
             <p className="text-xs text-muted-foreground">
-              Unique sponsors
+              Laboratorios únicos
             </p>
           </CardContent>
         </Card>
@@ -124,11 +124,11 @@ export default function TrialsPage() {
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CardTitle>All Trials</CardTitle>
+            <CardTitle>Todos los Estudios</CardTitle>
             <div className="relative w-full sm:w-72">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder="Search trials..."
+                placeholder="Buscar estudios clínicos..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -141,12 +141,12 @@ export default function TrialsPage() {
             <div className="text-center py-12">
               <Building className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <p className="text-gray-500 mb-4">
-                {searchTerm ? "No trials found matching your search" : "No trials found"}
+                {searchTerm ? "No se encontraron estudios que coincidan con tu búsqueda" : "No se encontraron estudios"}
               </p>
               {!searchTerm && (
                 <Button onClick={() => navigate('/trials/new')}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Add First Trial
+                  Agregar Primer Estudio
                 </Button>
               )}
             </div>
@@ -157,14 +157,14 @@ export default function TrialsPage() {
                 <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Trial Name</TableHead>
-                    <TableHead>Sponsor</TableHead>
-                    <TableHead className="hidden lg:table-cell">Medical Specialty</TableHead>
-                    <TableHead className="hidden xl:table-cell">Description</TableHead>
-                    <TableHead className="hidden lg:table-cell">Start Date</TableHead>
-                    <TableHead className="hidden lg:table-cell">End Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>Nombre del Estudio</TableHead>
+                    <TableHead>Laboratorio</TableHead>
+                    <TableHead className="hidden lg:table-cell">Especialidad Médica</TableHead>
+                    <TableHead className="hidden xl:table-cell">Descripción</TableHead>
+                    <TableHead className="hidden lg:table-cell">Fecha de Inicio</TableHead>
+                    <TableHead className="hidden lg:table-cell">Fecha de Fin</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
               <TableBody>
@@ -180,9 +180,9 @@ export default function TrialsPage() {
                   const isActive = isValidEndDate ? endDate > now : false
                   const hasStarted = isValidStartDate ? startDate <= now : false
                   
-                  let status = "Planned"
-                  if (hasStarted && isActive) status = "Active"
-                  else if (isValidEndDate && !isActive) status = "Completed"
+                  let status = "Planificado"
+                  if (hasStarted && isActive) status = "Activo"
+                  else if (isValidEndDate && !isActive) status = "Completado"
                   
                   return (
                     <TableRow key={trial.id}>
@@ -200,7 +200,7 @@ export default function TrialsPage() {
                             {trial.medical_specialty}
                           </Badge>
                         ) : (
-                          <span className="text-gray-400">Not specified</span>
+                          <span className="text-gray-400">No especificado</span>
                         )}
                       </TableCell>
                       <TableCell className="hidden xl:table-cell max-w-xs truncate">
@@ -215,8 +215,8 @@ export default function TrialsPage() {
                       <TableCell>
                         <Badge 
                           variant={
-                            status === "Active" ? "default" : 
-                            status === "Completed" ? "secondary" : "outline"
+                            status === "Activo" ? "default" : 
+                            status === "Completado" ? "secondary" : "outline"
                           }
                         >
                           {status}
@@ -232,7 +232,7 @@ export default function TrialsPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => navigate(`/trials/${trial.id}/edit`)}>
                               <Edit className="mr-2 h-4 w-4" />
-                              Edit Trial
+                              Editar Estudio
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -257,9 +257,9 @@ export default function TrialsPage() {
                   const isActive = isValidEndDate ? endDate > now : false
                   const hasStarted = isValidStartDate ? startDate <= now : false
                   
-                  let status = "Planned"
-                  if (hasStarted && isActive) status = "Active"
-                  else if (isValidEndDate && !isActive) status = "Completed"
+                  let status = "Planificado"
+                  if (hasStarted && isActive) status = "Activo"
+                  else if (isValidEndDate && !isActive) status = "Completado"
 
                   return (
                     <Card key={trial.id} className="p-4">
@@ -279,7 +279,7 @@ export default function TrialsPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => navigate(`/trials/${trial.id}/edit`)}>
                               <Edit className="mr-2 h-4 w-4" />
-                              Edit Trial
+                              Editar Estudio
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -287,7 +287,7 @@ export default function TrialsPage() {
                       
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Status:</span>
+                          <span className="text-gray-500">Estado:</span>
                           <Badge 
                             variant={
                               status === "Active" ? "default" : 
@@ -300,7 +300,7 @@ export default function TrialsPage() {
                         
                         {trial.medical_specialty && (
                           <div className="flex justify-between">
-                            <span className="text-gray-500">Specialty:</span>
+                            <span className="text-gray-500">Especialidad:</span>
                             <Badge variant="outline">
                               {trial.medical_specialty}
                             </Badge>
@@ -308,12 +308,12 @@ export default function TrialsPage() {
                         )}
                         
                         <div className="flex justify-between items-start">
-                          <span className="text-gray-500 flex-shrink-0">Start Date:</span>
+                          <span className="text-gray-500 flex-shrink-0">Fecha de Inicio:</span>
                           <span className="text-right break-words">{isValidStartDate ? format(startDate, 'MMM d, yyyy') : 'TBD'}</span>
                         </div>
                         
                         <div className="flex justify-between items-start">
-                          <span className="text-gray-500 flex-shrink-0">End Date:</span>
+                          <span className="text-gray-500 flex-shrink-0">Fecha de Fin:</span>
                           <span className="text-right break-words">{isValidEndDate ? format(endDate, 'MMM d, yyyy') : 'TBD'}</span>
                         </div>
                         

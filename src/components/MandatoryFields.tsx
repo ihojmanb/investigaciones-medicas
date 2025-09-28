@@ -144,15 +144,15 @@ export default function MandatoryFields({
                     ? trials.find((t) => t.id === trial)
                       ? `${trials.find((t) => t.id === trial)?.name} - ${trials.find((t) => t.id === trial)?.sponsor}`
                       : "Selecciona un ensayo"
-                    : trialsLoading ? "Cargando..." : "Selecciona un ensayo"}
+                    : trialsLoading ? "Cargando..." : "Selecciona un estudio clínico"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-full max-h-[300px] p-0" side="bottom" align="start">
                 <Command>
-                  <CommandInput placeholder="Buscar ensayo clínico..." />
+                  <CommandInput placeholder="Buscar estudio clínico..." />
                   <CommandList>
-                    <CommandEmpty>No se encontró ensayo clínico.</CommandEmpty>
+                    <CommandEmpty>No se encontró estudio clínico.</CommandEmpty>
                     <CommandGroup>
                       {trials.map((t) => (
                         <CommandItem

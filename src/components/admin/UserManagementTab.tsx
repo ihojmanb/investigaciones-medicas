@@ -71,7 +71,7 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
       setUsers(data || [])
     } catch (error) {
       console.error('Error fetching users:', error)
-      toast.error('Failed to load users')
+      toast.error('Error al cargar usuarios')
     } finally {
       setLoading(false)
     }
@@ -100,11 +100,11 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
 
       if (error) throw error
       
-      toast.success('User role updated successfully')
+      toast.success('Rol de usuario actualizado exitosamente')
       await fetchUsers() // Refresh the list
     } catch (error) {
       console.error('Error changing role:', error)
-      toast.error('Failed to update user role')
+      toast.error('Error al actualizar el rol del usuario')
     }
   }
 
@@ -117,11 +117,11 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
 
       if (error) throw error
       
-      toast.success(`User ${newStatus ? 'activated' : 'deactivated'} successfully`)
+      toast.success(`Usuario ${newStatus ? 'activado' : 'desactivado'} exitosamente`)
       await fetchUsers() // Refresh the list
     } catch (error) {
       console.error('Error updating status:', error)
-      toast.error('Failed to update user status')
+      toast.error('Error al actualizar el estado del usuario')
     }
   }
 
@@ -135,7 +135,7 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
   if (loading) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">Loading users...</p>
+        <p className="text-gray-500">Cargando usuarios...</p>
       </div>
     )
   }
@@ -145,9 +145,9 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Users</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Usuarios</h3>
           <p className="text-sm text-gray-600">
-            Manage user accounts and roles ({filteredUsers.length} users)
+            Gestionar cuentas de usuario y roles ({filteredUsers.length} usuarios)
           </p>
         </div>
       </div>
@@ -157,12 +157,12 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>User</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Last Login</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Usuario</TableHead>
+              <TableHead>Rol</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Último Acceso</TableHead>
+              <TableHead>Creado</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -170,7 +170,7 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-12">
                   <p className="text-gray-500">
-                    {searchTerm ? "No users found matching your search." : "No users found."}
+                    {searchTerm ? "No se encontraron usuarios que coincidan con tu búsqueda." : "No se encontraron usuarios."}
                   </p>
                 </TableCell>
               </TableRow>
@@ -209,7 +209,7 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
                         onCheckedChange={(checked) => handleStatusToggle(user.user_id, checked)}
                       />
                       <Badge variant={user.is_active ? "default" : "secondary"}>
-                        {user.is_active ? "Active" : "Inactive"}
+                        {user.is_active ? "Activo" : "Inactivo"}
                       </Badge>
                     </div>
                   </TableCell>
@@ -236,7 +236,7 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
                           setIsEditDialogOpen(true)
                         }}>
                           <Edit className="mr-2 h-4 w-4" />
-                          Edit Permissions
+                          Editar Permisos
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
@@ -246,12 +246,12 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
                           {user.is_active ? (
                             <>
                               <Ban className="mr-2 h-4 w-4" />
-                              Deactivate
+                              Desactivar
                             </>
                           ) : (
                             <>
                               <CheckCircle className="mr-2 h-4 w-4" />
-                              Activate
+                              Activar
                             </>
                           )}
                         </DropdownMenuItem>
@@ -270,7 +270,7 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
         {filteredUsers.length === 0 ? (
           <Card className="p-8 text-center">
             <p className="text-gray-500">
-              {searchTerm ? "No users found matching your search." : "No users found."}
+              {searchTerm ? "No se encontraron usuarios que coincidan con tu búsqueda." : "No se encontraron usuarios."}
             </p>
           </Card>
         ) : (
@@ -320,7 +320,7 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
               
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">Role:</span>
+                  <span className="text-gray-500 text-sm">Rol:</span>
                   <Select
                     value={roles.find(r => r.name === user.role_name)?.id || ''}
                     onValueChange={(value) => handleRoleChange(user.user_id, value)}
@@ -339,7 +339,7 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
                 </div>
                 
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-sm">Status:</span>
+                  <span className="text-gray-500 text-sm">Estado:</span>
                   <Switch
                     checked={user.is_active}
                     onCheckedChange={(checked) => handleStatusToggle(user.user_id, checked)}
@@ -348,7 +348,7 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
                 
                 <div className="text-xs text-gray-400 space-y-1">
                   <div className="flex justify-between">
-                    <span>Created:</span>
+                    <span>Creado:</span>
                     <span>{new Date(user.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
@@ -362,9 +362,9 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Edit User Permissions</DialogTitle>
+            <DialogTitle>Editar Permisos de Usuario</DialogTitle>
             <DialogDescription>
-              Manage permissions for {selectedUser?.full_name || selectedUser?.email}
+              Gestionar permisos para {selectedUser?.full_name || selectedUser?.email}
             </DialogDescription>
           </DialogHeader>
           
@@ -376,13 +376,13 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
                   <p className="font-medium">{selectedUser.email}</p>
                 </div>
                 <div>
-                  <Label className="text-gray-600">Role</Label>
+                  <Label className="text-gray-600">Rol</Label>
                   <p className="font-medium capitalize">{selectedUser.role_name}</p>
                 </div>
               </div>
               
               <div>
-                <Label className="text-gray-600">Role Information</Label>
+                <Label className="text-gray-600">Información del Rol</Label>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <Badge variant="secondary" className="text-xs">
                     {selectedUser.role_name || 'operator'}
@@ -397,10 +397,10 @@ export function UserManagementTab({ searchTerm }: UserManagementTabProps) {
               
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                  Close
+                  Cerrar
                 </Button>
                 <Button onClick={() => setIsEditDialogOpen(false)}>
-                  Save Changes
+                  Guardar Cambios
                 </Button>
               </div>
             </div>

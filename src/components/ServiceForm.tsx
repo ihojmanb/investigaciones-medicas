@@ -49,7 +49,7 @@ export default function ServiceForm({ service, onSubmit, onCancel }: ServiceForm
     <Card className="mb-6">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          {service ? 'Edit Service' : 'Add Service'}
+          {service ? 'Editar Servicio' : 'Agregar Servicio'}
           <Button variant="ghost" size="sm" onClick={onCancel}>
             <X className="w-4 h-4" />
           </Button>
@@ -58,19 +58,19 @@ export default function ServiceForm({ service, onSubmit, onCancel }: ServiceForm
       <CardContent className="pb-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Service Name *</Label>
+            <Label htmlFor="name">Nombre del Servicio *</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              placeholder="Enter service name"
+              placeholder="Ingresa el nombre del servicio"
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount *</Label>
+              <Label htmlFor="amount">Monto *</Label>
               <Input
                 id="amount"
                 type="number"
@@ -83,7 +83,7 @@ export default function ServiceForm({ service, onSubmit, onCancel }: ServiceForm
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="currency">Currency *</Label>
+              <Label htmlFor="currency">Moneda *</Label>
               <Select 
                 value={formData.currency} 
                 onValueChange={(value: 'USD' | 'CLP') => handleInputChange('currency', value)}
@@ -111,19 +111,19 @@ export default function ServiceForm({ service, onSubmit, onCancel }: ServiceForm
                   }
                 }}
               />
-              <Label htmlFor="is_visit">This service is a visit</Label>
+              <Label htmlFor="is_visit">Este servicio es una visita</Label>
             </div>
 
             {formData.is_visit && (
               <div className="space-y-2">
-                <Label htmlFor="visit_order">Visit Order (optional - auto-assigned if empty)</Label>
+                <Label htmlFor="visit_order">Orden de Visita (opcional - se asigna automáticamente si está vacío)</Label>
                 <Input
                   id="visit_order"
                   type="number"
                   min="1"
                   value={formData.visit_order || ''}
                   onChange={(e) => handleInputChange('visit_order', e.target.value ? parseInt(e.target.value) : null)}
-                  placeholder="Leave empty for auto-assignment"
+                  placeholder="Dejar vacío para asignación automática"
                 />
               </div>
             )}
@@ -132,10 +132,10 @@ export default function ServiceForm({ service, onSubmit, onCancel }: ServiceForm
           <div className="flex gap-2 pt-4 pb-2">
             <Button type="submit" disabled={saving || !formData.name.trim() || formData.amount.trim() === '' || parseFloat(formData.amount) <= 0}>
               <Plus className="w-4 h-4 mr-2" />
-              {saving ? 'Saving...' : (service ? 'Update Service' : 'Add Service')}
+              {saving ? 'Guardando...' : (service ? 'Actualizar Servicio' : 'Agregar Servicio')}
             </Button>
             <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
+              Cancelar
             </Button>
           </div>
         </form>

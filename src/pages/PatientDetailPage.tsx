@@ -115,14 +115,14 @@ export default function PatientDetailPage() {
           <Button variant="ghost" asChild>
             <Link to="/patients">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Patients
+              Volver a Pacientes
             </Link>
           </Button>
         </div>
         
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading patient details...</p>
+          <p className="text-gray-500">Cargando detalles del paciente...</p>
         </div>
       </div>
     )
@@ -136,15 +136,15 @@ export default function PatientDetailPage() {
           <Button variant="ghost" asChild>
             <Link to="/patients">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Patients
+              Volver a Pacientes
             </Link>
           </Button>
         </div>
         
         <div className="text-center py-12">
           <User className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-          <p className="text-gray-500 mb-2">Patient not found</p>
-          <p className="text-sm text-gray-400">The patient you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-500 mb-2">Paciente no encontrado</p>
+          <p className="text-sm text-gray-400">El paciente que buscas no existe o ha sido eliminado.</p>
         </div>
       </div>
     )
@@ -164,7 +164,7 @@ export default function PatientDetailPage() {
             <Button variant="ghost" asChild>
               <Link to="/patients">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Patients
+                Volver a Pacientes
               </Link>
             </Button>
             
@@ -172,14 +172,14 @@ export default function PatientDetailPage() {
               <h1 className="text-2xl font-bold text-gray-900">
                 {formatPatientName(patient)}
               </h1>
-              <p className="text-gray-600">Patient Code: {patient?.code}</p>
+              <p className="text-gray-600">Código del Paciente: {patient?.code}</p>
             </div>
           </div>
   
           <Button asChild>
             <Link to="/expenses/new">
               <Plus className="w-4 h-4 mr-2" />
-              New Expense
+              Nuevo Gasto
             </Link>
           </Button>
         </div>
@@ -188,7 +188,7 @@ export default function PatientDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Patient Info</CardTitle>
+              <CardTitle className="text-sm font-medium">Información del Paciente</CardTitle>
               <User className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -201,7 +201,7 @@ export default function PatientDetailPage() {
   
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Last Activity</CardTitle>
+              <CardTitle className="text-sm font-medium">Última Actividad</CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -209,14 +209,14 @@ export default function PatientDetailPage() {
                 {expenses.length > 0 ? format(new Date(expenses[0].created_at), 'MMM d') : 'N/A'}
               </div>
               <p className="text-xs text-muted-foreground">
-                Last expense submitted
+                Último gasto enviado
               </p>
             </CardContent>
           </Card>
   
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
+              <CardTitle className="text-sm font-medium">Monto Total</CardTitle>
               <Receipt className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -224,7 +224,7 @@ export default function PatientDetailPage() {
                 ${getTotalAmountAllExpenses().toLocaleString('es-CL')}
               </div>
               <p className="text-xs text-muted-foreground">
-                {expenses.length} expense{expenses.length !== 1 ? 's' : ''} submitted
+                {expenses.length} gasto{expenses.length !== 1 ? 's' : ''} enviado{expenses.length !== 1 ? 's' : ''}
               </p>
             </CardContent>
           </Card>
@@ -233,22 +233,22 @@ export default function PatientDetailPage() {
         {/* Expense History */}
         <Card>
           <CardHeader>
-            <CardTitle>Expense History</CardTitle>
+            <CardTitle>Historial de Gastos</CardTitle>
           </CardHeader>
           <CardContent>
             {expensesLoading ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-gray-500">Loading expenses...</p>
+                <p className="text-gray-500">Cargando gastos...</p>
               </div>
             ) : expenses.length === 0 ? (
               <div className="text-center py-12">
                 <Receipt className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-gray-500 mb-4">No expenses submitted yet</p>
+                <p className="text-gray-500 mb-4">Aún no se han enviado gastos</p>
                 <Button asChild>
                   <Link to="/expenses/new">
                     <Plus className="w-4 h-4 mr-2" />
-                    Submit First Expense
+                    Enviar Primer Gasto
                   </Link>
                 </Button>
               </div>
@@ -260,7 +260,7 @@ export default function PatientDetailPage() {
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full text-left pr-4">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                           <Badge variant="secondary" className="self-start">
-                            {expense.trial?.name || 'Unknown Trial'}
+                            {expense.trial?.name || 'Estudio Desconocido'}
                           </Badge>
                           <div className="text-sm font-medium">
                             {expense.visit_type}
@@ -271,7 +271,7 @@ export default function PatientDetailPage() {
                         </div>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 sm:mt-0">
                           <div className="text-sm">
-                            {getExpenseItemsCount(expense)} items
+                            {getExpenseItemsCount(expense)} elementos
                           </div>
                           <div className="text-sm font-medium">
                             {formatChileanPesos(getTotalAmount(expense))}
@@ -286,7 +286,7 @@ export default function PatientDetailPage() {
                               <DropdownMenuItem asChild>
                                 <Link to={`/expenses/${expense.id}/edit`}>
                                   <Edit className="mr-2 h-4 w-4" />
-                                  Edit Expense
+                                  Editar Gasto
                                 </Link>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -297,12 +297,12 @@ export default function PatientDetailPage() {
                     <AccordionContent className="px-4 pb-4">
                       <div className="space-y-3">
                         <div className="flex justify-between items-center text-sm text-muted-foreground border-b pb-2">
-                          <span>Last Modified: {formatDateLocal(expense.modified_at || expense.created_at)}</span>
-                          <Badge variant="outline">Submitted</Badge>
+                          <span>Última Modificación: {formatDateLocal(expense.modified_at || expense.created_at)}</span>
+                          <Badge variant="outline">Enviado</Badge>
                         </div>
                         {expense.expense_items.length === 0 ? (
                           <div className="text-center py-6 text-muted-foreground">
-                            No expense items found
+                            No se encontraron elementos de gastos
                           </div>
                         ) : (
                           <div className="grid gap-3">
@@ -314,7 +314,7 @@ export default function PatientDetailPage() {
                                       {getExpenseTypeLabel(item.type)}
                                     </div>
                                     <div className="text-xs text-muted-foreground">
-                                      Modified: {formatDateLocal(item.modified_at)}
+                                      Modificado: {formatDateLocal(item.modified_at)}
                                     </div>
                                   </div>
                                   <div className="flex flex-col sm:flex-row sm:items-center gap-2">

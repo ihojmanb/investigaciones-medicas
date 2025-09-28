@@ -17,8 +17,8 @@ export default function AdminPage() {
     <AdminGuard>
       <div>
         <PageHeader
-          title="Administration"
-          subtitle="Manage users, permissions, and system settings"
+          title="Administración"
+          subtitle="Gestionar usuarios, permisos y configuración del sistema"
         />
 
         {/* Search */}
@@ -26,7 +26,7 @@ export default function AdminPage() {
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
-              placeholder="Search users, permissions..."
+              placeholder="Buscar usuarios, permisos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"

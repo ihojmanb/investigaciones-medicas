@@ -51,15 +51,15 @@ export default function PatientForm({ mode = 'create', patient, onSuccess }: Pat
   const handleSubmit = async () => {
     // Basic validation
     if (!formData.code.trim()) {
-      toast.error('Patient code is required')
+      toast.error('El código del paciente es obligatorio')
       return
     }
     if (!formData.first_name.trim()) {
-      toast.error('First name is required')
+      toast.error('El primer nombre es obligatorio')
       return
     }
     if (!formData.first_surname.trim()) {
-      toast.error('First surname is required')
+      toast.error('El primer apellido es obligatorio')
       return
     }
 
@@ -74,7 +74,7 @@ export default function PatientForm({ mode = 'create', patient, onSuccess }: Pat
       
       if (mode === 'create') {
         await createPatient(submitData)
-        toast.success('Patient created successfully')
+        toast.success('Paciente creado exitosamente')
         if (onSuccess) {
           onSuccess()
         } else {
@@ -82,7 +82,7 @@ export default function PatientForm({ mode = 'create', patient, onSuccess }: Pat
         }
       } else if (mode === 'edit' && patient) {
         await updatePatient(patient.id, submitData)
-        toast.success('Patient updated successfully')
+        toast.success('Paciente actualizado exitosamente')
         if (onSuccess) {
           onSuccess()
         } else {
@@ -104,63 +104,63 @@ export default function PatientForm({ mode = 'create', patient, onSuccess }: Pat
     <Card>
       <CardHeader>
         <CardTitle>
-          {mode === 'create' ? 'Create New Patient' : 'Edit Patient'}
+          {mode === 'create' ? 'Crear Nuevo Paciente' : 'Editar Paciente'}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="code">Patient Code *</Label>
+          <Label htmlFor="code">Código del Paciente *</Label>
           <Input
             id="code"
             value={formData.code}
             onChange={(e) => handleInputChange('code', e.target.value)}
-            placeholder="Enter patient code"
+            placeholder="Ingresa el código del paciente"
             required
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="first_name">First Name *</Label>
+            <Label htmlFor="first_name">Primer Nombre *</Label>
             <Input
               id="first_name"
               value={formData.first_name}
               onChange={(e) => handleInputChange('first_name', e.target.value)}
-              placeholder="Enter first name"
+              placeholder="Ingresa el primer nombre"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="second_name">Second Name</Label>
+            <Label htmlFor="second_name">Segundo Nombre</Label>
             <Input
               id="second_name"
               value={formData.second_name}
               onChange={(e) => handleInputChange('second_name', e.target.value)}
-              placeholder="Enter second name (optional)"
+              placeholder="Ingresa el segundo nombre (opcional)"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="first_surname">First Surname *</Label>
+            <Label htmlFor="first_surname">Primer Apellido *</Label>
             <Input
               id="first_surname"
               value={formData.first_surname}
               onChange={(e) => handleInputChange('first_surname', e.target.value)}
-              placeholder="Enter first surname"
+              placeholder="Ingresa el primer apellido"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="second_surname">Second Surname</Label>
+            <Label htmlFor="second_surname">Segundo Apellido</Label>
             <Input
               id="second_surname"
               value={formData.second_surname}
               onChange={(e) => handleInputChange('second_surname', e.target.value)}
-              placeholder="Enter second surname (optional)"
+              placeholder="Ingresa el segundo apellido (opcional)"
             />
           </div>
         </div>
@@ -171,20 +171,20 @@ export default function PatientForm({ mode = 'create', patient, onSuccess }: Pat
             checked={formData.status === 'active'}
             onCheckedChange={(checked) => handleInputChange('status', checked ? 'active' : 'inactive')}
           />
-          <Label htmlFor="status">Active Status</Label>
+          <Label htmlFor="status">Estado Activo</Label>
         </div>
 
         <div className="flex gap-2 pt-4">
           <Button onClick={handleSubmit} disabled={saving || !isFormValid}>
             <Save className="w-4 h-4 mr-2" />
-            {saving ? 'Saving...' : (mode === 'create' ? 'Create Patient' : 'Update Patient')}
+            {saving ? 'Guardando...' : (mode === 'create' ? 'Crear Paciente' : 'Actualizar Paciente')}
           </Button>
           <Button 
             type="button" 
             variant="outline" 
             onClick={() => navigate('/patients')}
           >
-            Cancel
+            Cancelar
           </Button>
         </div>
       </CardContent>

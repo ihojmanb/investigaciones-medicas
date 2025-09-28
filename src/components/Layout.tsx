@@ -22,31 +22,31 @@ interface LayoutProps {
 // Navigation items with permission requirements
 const navigationConfig = [
   {
-    name: "Submit Expense",
+    name: "Rendición Gastos",
     href: "/expenses/new",
     icon: Receipt,
     showWhen: 'showExpensesSection' as const,
   },
   {
-    name: "Patients",
+    name: "Pacientes",
     href: "/patients",
     icon: Users,
     showWhen: 'showPatientsSection' as const,
   },
   {
-    name: "Trials",
+    name: "Estudios Clínicos",
     href: "/trials",
     icon: FlaskConical,
     showWhen: 'showTrialsSection' as const,
   },
   {
-    name: "Reports",
+    name: "Reportes",
     href: "/reports",
     icon: BarChart3,
     showWhen: 'showReportsSection' as const,
   },
   {
-    name: "Admin",
+    name: "Administración",
     href: "/admin",
     icon: Settings,
     showWhen: 'showAdminSection' as const,
@@ -84,10 +84,10 @@ export default function Layout({ children }: LayoutProps) {
     try {
       await signOut()
       console.log('✅ Signed out successfully')
-      toast.success("Signed out successfully")
+      toast.success("Sesión cerrada exitosamente")
     } catch (error) {
       console.error('❌ Sign out error:', error)
-      toast.error("Error signing out")
+      toast.error("Error al cerrar sesión")
     }
   }
 
@@ -171,7 +171,7 @@ export default function Layout({ children }: LayoutProps) {
                   <div className="mt-1">
                     {profileLoading ? (
                       <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-500 border-gray-200">
-                        Loading...
+                        Cargando...
                       </span>
                     ) : (
                       <span className={cn(
@@ -190,7 +190,7 @@ export default function Layout({ children }: LayoutProps) {
               size="sm"
               onClick={handleSignOut}
               className="p-2"
-              title="Sign out"
+              title="Cerrar sesión"
             >
               <LogOut className="w-4 h-4" />
             </Button>
@@ -202,7 +202,7 @@ export default function Layout({ children }: LayoutProps) {
               size="sm"
               onClick={handleSignOut}
               className="p-2"
-              title="Sign out"
+              title="Cerrar sesión"
             >
               <LogOut className="w-4 h-4" />
             </Button>

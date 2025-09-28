@@ -52,11 +52,11 @@ export default function PatientsPage() {
   const handleStatusToggle = async (patientId: string, newStatus: 'active' | 'inactive') => {
     try {
       await updatePatientStatus(patientId, newStatus)
-      toast.success(`Patient ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`)
+      toast.success(`Paciente ${newStatus === 'active' ? 'activado' : 'desactivado'} exitosamente`)
       await refetch() // Refresh the list
     } catch (error) {
       console.error('Error updating status:', error)
-      toast.error('Failed to update patient status')
+      toast.error('Error al actualizar el estado del paciente')
     }
   }
 
@@ -64,11 +64,11 @@ export default function PatientsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Patients</h1>
-          <p className="text-gray-600">Manage patient information and expense history</p>
+          <h1 className="text-2xl font-bold text-gray-900">Pacientes</h1>
+          <p className="text-gray-600">Gestionar información de pacientes e historial de gastos</p>
         </div>
         <div className="text-center py-12">
-          <p className="text-gray-500">Loading patients...</p>
+          <p className="text-gray-500">Cargando pacientes...</p>
         </div>
       </div>
     )
@@ -77,10 +77,10 @@ export default function PatientsPage() {
   return (
     <div>
         <PageHeader
-          title="Patients"
-          subtitle="Manage patient information and expense history"
+          title="Pacientes"
+          subtitle="Gestionar información de pacientes e historial de gastos"
           action={{
-            label: "Add Patient",
+            label: "Agregar Paciente",
             icon: <Plus className="w-4 h-4" />,
             onClick: () => navigate("/patients/new")
           }}
@@ -91,7 +91,7 @@ export default function PatientsPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
-            placeholder="Search by name or code..."
+            placeholder="Buscar por nombre o código..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -104,11 +104,11 @@ export default function PatientsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Patient Code</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Active Trials</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Código Paciente</TableHead>
+              <TableHead>Nombre</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Estudios Activos</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -116,7 +116,7 @@ export default function PatientsPage() {
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-12">
                   <p className="text-gray-500">
-                    {searchTerm ? "No patients found matching your search." : "No patients found."}
+                    {searchTerm ? "No se encontraron pacientes que coincidan con tu búsqueda." : "No se encontraron pacientes."}
                   </p>
                 </TableCell>
               </TableRow>
@@ -161,13 +161,13 @@ export default function PatientsPage() {
                           <DropdownMenuItem asChild>
                             <Link to={`/patients/${patient.id}`}>
                               <Eye className="mr-2 h-4 w-4" />
-                              View Details
+                              Ver Detalles
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link to={`/patients/${patient.id}/edit`}>
                               <Edit className="mr-2 h-4 w-4" />
-                              Edit Patient
+                              Editar Paciente
                             </Link>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -186,7 +186,7 @@ export default function PatientsPage() {
         {filteredPatients.length === 0 ? (
           <Card className="p-8 text-center">
             <p className="text-gray-500">
-              {searchTerm ? "No patients found matching your search." : "No patients found."}
+              {searchTerm ? "No se encontraron pacientes que coincidan con tu búsqueda." : "No se encontraron pacientes."}
             </p>
           </Card>
         ) : (
@@ -200,7 +200,7 @@ export default function PatientsPage() {
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-mono text-sm text-gray-500">{patient.code}</span>
                       <Badge variant={patient.status === 'active' ? 'default' : 'secondary'}>
-                        {patient.status === 'active' ? 'Active' : 'Inactive'}
+                        {patient.status === 'active' ? 'Activo' : 'Inactivo'}
                       </Badge>
                     </div>
                     <h3 className="font-medium text-lg">{formatPatientName(patient)}</h3>
@@ -230,7 +230,7 @@ export default function PatientsPage() {
                 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-500">Status Control:</span>
+                    <span className="text-gray-500">Control de Estado:</span>
                     <Switch
                       checked={patient.status === 'active'}
                       onCheckedChange={(checked) => handleStatusToggle(patient.id, checked ? 'active' : 'inactive')}
@@ -238,13 +238,13 @@ export default function PatientsPage() {
                   </div>
                   
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Active Trials:</span>
+                    <span className="text-gray-500">Estudios Activos:</span>
                     <span className="font-medium">{patientTrials.length}</span>
                   </div>
                   
                   {patientTrials.length > 0 && (
                     <div className="pt-2 border-t">
-                      <p className="text-gray-500 text-xs mb-1">Trials:</p>
+                      <p className="text-gray-500 text-xs mb-1">Estudios:</p>
                       <div className="flex flex-wrap gap-1">
                         {patientTrials.map((trial) => (
                           <Badge key={trial.id} variant="outline" className="text-xs">

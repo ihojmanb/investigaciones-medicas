@@ -55,7 +55,7 @@ export default function TrialEditPage() {
       }
     } catch (error) {
       console.error('Error loading trial:', error)
-      toast.error('Error loading trial data')
+      toast.error('Error al cargar datos del estudio clínico')
       navigate('/trials')
     } finally {
       setLoading(false)
@@ -74,18 +74,18 @@ export default function TrialEditPage() {
 
     // Validation
     if (!formData.name.trim()) {
-      toast.error('Trial name is required')
+      toast.error('El nombre del estudio es obligatorio')
       return
     }
 
     try {
       setSaving(true)
       await updateTrial(id, formData)
-      toast.success('Trial updated successfully')
+      toast.success('Estudio clínico actualizado exitosamente')
       navigate('/trials')
     } catch (error) {
       console.error('Error updating trial:', error)
-      toast.error('Error updating trial')
+      toast.error('Error al actualizar el estudio clínico')
     } finally {
       setSaving(false)
     }
@@ -95,10 +95,10 @@ export default function TrialEditPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Edit Trial"
-          subtitle="Modify trial information"
+          title="Editar Estudio Clínico"
+          subtitle="Modificar información del estudio"
           backButton={{
-            label: "Back to Trials",
+            label: "Volver a Estudios Clínicos",
             icon: <ArrowLeft className="w-4 h-4" />,
             onClick: () => navigate("/trials")
           }}
@@ -106,7 +106,7 @@ export default function TrialEditPage() {
         
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading trial data...</p>
+          <p className="text-gray-500">Cargando datos del estudio clínico...</p>
         </div>
       </div>
     )
@@ -116,17 +116,17 @@ export default function TrialEditPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Edit Trial"
-          subtitle="Modify trial information"
+          title="Editar Estudio Clínico"
+          subtitle="Modificar información del estudio"
           backButton={{
-            label: "Back to Trials",
+            label: "Volver a Estudios Clínicos",
             icon: <ArrowLeft className="w-4 h-4" />,
             onClick: () => navigate("/trials")
           }}
         />
         
         <div className="text-center py-12">
-          <p className="text-gray-500">Trial not found</p>
+          <p className="text-gray-500">Estudio clínico no encontrado</p>
         </div>
       </div>
     )
@@ -143,7 +143,7 @@ export default function TrialEditPage() {
           onClick: () => navigate("/trials")
         }}
         action={{
-          label: saving ? 'Saving...' : 'Save Changes',
+          label: saving ? 'Guardando...' : 'Guardar Cambios',
           icon: <Save className="w-4 h-4" />,
           onClick: handleSave
         }}
@@ -151,53 +151,53 @@ export default function TrialEditPage() {
       
       <Card>
         <CardHeader>
-          <CardTitle>Trial Information</CardTitle>
+          <CardTitle>Información del Estudio Clínico</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="name">Trial Name *</Label>
+            <Label htmlFor="name">Nombre del Estudio *</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              placeholder="Enter trial name"
+              placeholder="Ingresa el nombre del estudio"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="sponsor">Sponsor *</Label>
+            <Label htmlFor="sponsor">Laboratorio *</Label>
             <Input
               id="sponsor"
               value={formData.sponsor}
               onChange={(e) => handleInputChange('sponsor', e.target.value)}
-              placeholder="Enter sponsor name"
+              placeholder="Ingresa el nombre del laboratorio"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Descripción</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Enter trial description"
+              placeholder="Ingresa la descripción del estudio"
               rows={4}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="medical_specialty">Medical Specialty</Label>
+            <Label htmlFor="medical_specialty">Especialidad Médica</Label>
             <Input
               id="medical_specialty"
               value={formData.medical_specialty}
               onChange={(e) => handleInputChange('medical_specialty', e.target.value)}
-              placeholder="Enter medical specialty (e.g., Cardiology, Oncology)"
+              placeholder="Ingresa la especialidad médica (ej: Cardiología, Oncología)"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="start_date">Start Date</Label>
+              <Label htmlFor="start_date">Fecha de Inicio</Label>
               <Input
                 id="start_date"
                 type="date"
@@ -207,7 +207,7 @@ export default function TrialEditPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="end_date">End Date</Label>
+              <Label htmlFor="end_date">Fecha de Fin</Label>
               <Input
                 id="end_date"
                 type="date"
@@ -223,18 +223,20 @@ export default function TrialEditPage() {
               checked={formData.active}
               onCheckedChange={(checked) => handleInputChange('active', checked)}
             />
-            <Label htmlFor="active">Active Trial</Label>
+            <Label htmlFor="active">Estudio Activo</Label>
           </div>
         </CardContent>
       </Card>
       
       {/* Fee Schedule Section - Admin Only */}
       {trial && permissions.canManageTrialServices && (
-        <FeeScheduleSection
-          trialId={trial.id}
-          services={trial.services || []}
-          onServicesUpdate={loadTrialData}
-        />
+        <div className="mt-6">
+          <FeeScheduleSection
+            trialId={trial.id}
+            services={trial.services || []}
+            onServicesUpdate={loadTrialData}
+          />
+        </div>
       )}
     </div>
   )

@@ -13,8 +13,8 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email("Por favor ingresa una dirección de email válida"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
@@ -45,7 +45,7 @@ export default function LoginPage() {
         return;
       }
 
-      toast.success("Login successful!");
+      toast.success("¡Inicio de sesión exitoso!");
       
       // Check for stored redirect URL, otherwise go to default
       const redirectTo = sessionStorage.getItem('redirectAfterLogin') || '/';
@@ -53,7 +53,7 @@ export default function LoginPage() {
       navigate(redirectTo, { replace: true });
       
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
+      setError("Ocurrió un error inesperado. Por favor inténtalo de nuevo.");
       console.error("Login error:", err);
     } finally {
       setIsLoading(false);
@@ -66,10 +66,10 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            Medical Research Login
+            Inicio de Sesión - Investigaciones Médicas
           </CardTitle>
           <CardDescription className="text-center">
-            Enter your credentials to access the system. Contact your administrator for account access.
+            Ingresa tus credenciales para acceder al sistema. Contacta a tu administrador para acceso a la cuenta.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -89,7 +89,7 @@ export default function LoginPage() {
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter your email"
+                        placeholder="Ingresa tu email"
                         type="email"
                         disabled={isLoading}
                         {...field}
@@ -105,10 +105,10 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>Contraseña</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter your password"
+                        placeholder="Ingresa tu contraseña"
                         type="password"
                         disabled={isLoading}
                         {...field}
@@ -127,10 +127,10 @@ export default function LoginPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Signing in...
+                    Iniciando sesión...
                   </>
                 ) : (
-                  "Sign In"
+                  "Iniciar Sesión"
                 )}
               </Button>
             </form>

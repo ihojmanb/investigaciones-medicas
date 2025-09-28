@@ -279,7 +279,7 @@ export default function ExpenseForm({
         throw new Error(result.error)
       }
       
-      const successMessage = mode === 'edit' ? "Expense updated successfully" : "Formulario enviado"
+      const successMessage = mode === 'edit' ? "Gastos actualizados exitosamente" : "Formulario enviado"
       const successDescription = mode === 'edit' ? 
         "El reembolso de gastos ha sido actualizado correctamente." :
         "El reembolso de gastos ha sido guardado correctamente."

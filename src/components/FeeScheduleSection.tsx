@@ -51,12 +51,12 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
   const handleCreateService = async (data: TrialServiceFormData) => {
     try {
       await createTrialService(trialId, data)
-      toast.success('Service created successfully')
+      toast.success('Servicio creado exitosamente')
       setShowServiceForm(false)
       onServicesUpdate()
     } catch (error: any) {
       // Show custom error message if available, otherwise default message
-      const errorMessage = error?.message || 'Error creating service'
+      const errorMessage = error?.message || 'Error al crear el servicio'
       toast.error(errorMessage)
       console.error(error)
     }
@@ -67,26 +67,26 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
 
     try {
       await updateTrialService(editingService.id, data)
-      toast.success('Service updated successfully')
+      toast.success('Servicio actualizado exitosamente')
       setEditingService(null)
       onServicesUpdate()
     } catch (error) {
-      toast.error('Error updating service')
+      toast.error('Error al actualizar el servicio')
       console.error(error)
     }
   }
 
   const handleDeleteService = async (serviceId: string) => {
-    if (!confirm('Are you sure you want to delete this service? This will also delete all its allocations.')) {
+    if (!confirm('¿Estás seguro de que quieres eliminar este servicio? Esto también eliminará todas sus prestaciones.')) {
       return
     }
 
     try {
       await deleteTrialService(serviceId)
-      toast.success('Service deleted successfully')
+      toast.success('Servicio eliminado exitosamente')
       onServicesUpdate()
     } catch (error) {
-      toast.error('Error deleting service')
+      toast.error('Error al eliminar el servicio')
       console.error(error)
     }
   }
@@ -96,11 +96,11 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
 
     try {
       await createServiceAllocation(editingAllocation.serviceId, data)
-      toast.success('Allocation created successfully')
+      toast.success('Prestación creada exitosamente')
       setEditingAllocation(null)
       onServicesUpdate()
     } catch (error) {
-      toast.error('Error creating allocation')
+      toast.error('Error al crear la prestación')
       console.error(error)
     }
   }
@@ -110,26 +110,26 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
 
     try {
       await updateServiceAllocation(editingAllocation.allocation.id, data)
-      toast.success('Allocation updated successfully')
+      toast.success('Prestación actualizada exitosamente')
       setEditingAllocation(null)
       onServicesUpdate()
     } catch (error) {
-      toast.error('Error updating allocation')
+      toast.error('Error al actualizar la prestación')
       console.error(error)
     }
   }
 
   const handleDeleteAllocation = async (allocationId: string) => {
-    if (!confirm('Are you sure you want to delete this allocation?')) {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta prestación?')) {
       return
     }
 
     try {
       await deleteServiceAllocation(allocationId)
-      toast.success('Allocation deleted successfully')
+      toast.success('Prestación eliminada exitosamente')
       onServicesUpdate()
     } catch (error) {
-      toast.error('Error deleting allocation')
+      toast.error('Error al eliminar la prestación')
       console.error(error)
     }
   }
@@ -142,10 +142,10 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Fee Schedule</CardTitle>
+          <CardTitle>Lista de Precios</CardTitle>
           <Button onClick={() => setShowServiceForm(true)}>
             <Plus className="w-4 h-4 mr-2" />
-            Add Service
+            Agregar Servicio
           </Button>
         </div>
       </CardHeader>
@@ -167,7 +167,7 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
 
         {services.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            No services added yet. Click "Add Service" to get started.
+            Aún no se han agregado servicios. Haz clic en "Agregar Servicio" para comenzar.
           </div>
         ) : (
           <div className="space-y-3">
@@ -195,7 +195,7 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
                               {service.is_visit && (
                                 <Badge variant="secondary" className="text-xs self-start">
                                   <Calendar className="w-3 h-3 mr-1" />
-                                  Visit {service.visit_order}
+                                  Visita {service.visit_order}
                                 </Badge>
                               )}
                             </div>
@@ -204,10 +204,10 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
                                 {formatCurrency(service.amount, service.currency)} {service.currency}
                               </Badge>
                               <Badge variant={totalAllocated === service.amount ? "default" : "secondary"} className="text-xs self-start">
-                                Allocated: {formatCurrency(totalAllocated, service.currency)} {service.currency}
+                                Asignado: {formatCurrency(totalAllocated, service.currency)} {service.currency}
                               </Badge>
                               <span className="text-sm text-gray-500">
-                                ({allocationsCount}/2 allocations)
+                                ({allocationsCount}/2 prestaciones)
                               </span>
                             </div>
                           </div>
@@ -236,7 +236,7 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
                       <div className="px-4 pb-4 border-t">
                         <div className="mt-4 space-y-3">
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                            <h5 className="font-medium text-sm">Service Allocations</h5>
+                            <h5 className="font-medium text-sm">Prestaciones del Servicio</h5>
                             {allocationsCount < 2 && (
                               <Button
                                 size="sm"
@@ -245,7 +245,7 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
                                 className="self-start sm:self-auto"
                               >
                                 <Plus className="w-4 h-4 mr-2" />
-                                Add Allocation
+                                Agregar Prestación
                               </Button>
                             )}
                           </div>
@@ -305,7 +305,7 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
                             </div>
                           ) : (
                             <div className="text-center py-4 text-gray-500 text-sm">
-                              No allocations added yet
+                              Aún no se han agregado prestaciones
                             </div>
                           )}
                         </div>
