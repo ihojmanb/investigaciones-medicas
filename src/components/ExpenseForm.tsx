@@ -4,7 +4,7 @@ import { toast } from "sonner"
 import MandatoryFields from "./MandatoryFields"
 import ExpenseSection from "./ExpenseSection"
 import ProgressIndicator from "./ProgressIndicator"
-import { Save, Send, Clock } from "lucide-react"
+import { Send } from "lucide-react"
 import { saveExpenseToDatabase, ExpenseFormData as ServiceExpenseFormData } from "@/services/expenseService"
 import { updateExpense, ExpenseFormDataForEdit } from "@/services/patientExpenseService"
 import { usePatients } from "@/hooks/usePatients"
@@ -102,7 +102,6 @@ export default function ExpenseForm({
   
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [uploadProgress, setUploadProgress] = useState<string>("")
 
   // Get names for file upload paths
@@ -112,17 +111,6 @@ export default function ExpenseForm({
   const visitName = formData.visit || ""
   const patientCode = selectedPatient?.code || ""
   
-  // Auto-save functionality (demo)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if ((formData.patient || formData.trial || formData.visit)) {
-        setLastSaved(new Date())
-        console.log('Auto-saved form data')
-      }
-    }, 2000)
-    
-    return () => clearTimeout(timer)
-  }, [formData])
   
   // Helper function to check if a section is complete with new validation rules
   const isSectionComplete = (receipt: File | string | null, amount: string) => {
@@ -317,12 +305,6 @@ export default function ExpenseForm({
     }
   }
   
-  const handleSave = () => {
-      setLastSaved(new Date())
-      toast("Borrador guardado", {
-        description: "Los cambios han sido guardados."
-      })
-  }
   
   return (
     <div className="min-h-screen bg-background">
@@ -361,7 +343,7 @@ export default function ExpenseForm({
                 amountLabel="Monto Traslado"
                 receipt={formData.transportReceipt}
                 amount={formData.transportAmount}
-                onReceiptChange={(receipt) => setFormData(prev => ({ ...prev, transportReceipt: receipt }))}
+                onReceiptChange={(receipt) => setFormData(prev => ({ ...prev, transportReceipt: receipt, transportAmount: receipt ? prev.transportAmount : '' }))}
                 onAmountChange={(amount) => setFormData(prev => ({ ...prev, transportAmount: amount }))}
                 isExpanded={expandedSections.transport || false}
                 onToggle={() => toggleSection('transport')}
@@ -378,7 +360,7 @@ export default function ExpenseForm({
                 amountLabel="Monto Pasaje 1"
                 receipt={formData.trip1Receipt}
                 amount={formData.trip1Amount}
-                onReceiptChange={(receipt) => setFormData(prev => ({ ...prev, trip1Receipt: receipt }))}
+                onReceiptChange={(receipt) => setFormData(prev => ({ ...prev, trip1Receipt: receipt, trip1Amount: receipt ? prev.trip1Amount : '' }))}
                 onAmountChange={(amount) => setFormData(prev => ({ ...prev, trip1Amount: amount }))}
                 isExpanded={expandedSections.trip1 || false}
                 onToggle={() => toggleSection('trip1')}
@@ -395,7 +377,7 @@ export default function ExpenseForm({
                 amountLabel="Monto Pasaje 2"
                 receipt={formData.trip2Receipt}
                 amount={formData.trip2Amount}
-                onReceiptChange={(receipt) => setFormData(prev => ({ ...prev, trip2Receipt: receipt }))}
+                onReceiptChange={(receipt) => setFormData(prev => ({ ...prev, trip2Receipt: receipt, trip2Amount: receipt ? prev.trip2Amount : '' }))}
                 onAmountChange={(amount) => setFormData(prev => ({ ...prev, trip2Amount: amount }))}
                 isExpanded={expandedSections.trip2 || false}
                 onToggle={() => toggleSection('trip2')}
@@ -412,7 +394,7 @@ export default function ExpenseForm({
                 amountLabel="Monto Pasaje 3"
                 receipt={formData.trip3Receipt}
                 amount={formData.trip3Amount}
-                onReceiptChange={(receipt) => setFormData(prev => ({ ...prev, trip3Receipt: receipt }))}
+                onReceiptChange={(receipt) => setFormData(prev => ({ ...prev, trip3Receipt: receipt, trip3Amount: receipt ? prev.trip3Amount : '' }))}
                 onAmountChange={(amount) => setFormData(prev => ({ ...prev, trip3Amount: amount }))}
                 isExpanded={expandedSections.trip3 || false}
                 onToggle={() => toggleSection('trip3')}
@@ -429,7 +411,7 @@ export default function ExpenseForm({
                 amountLabel="Monto Pasaje 4"
                 receipt={formData.trip4Receipt}
                 amount={formData.trip4Amount}
-                onReceiptChange={(receipt) => setFormData(prev => ({ ...prev, trip4Receipt: receipt }))}
+                onReceiptChange={(receipt) => setFormData(prev => ({ ...prev, trip4Receipt: receipt, trip4Amount: receipt ? prev.trip4Amount : '' }))}
                 onAmountChange={(amount) => setFormData(prev => ({ ...prev, trip4Amount: amount }))}
                 isExpanded={expandedSections.trip4 || false}
                 onToggle={() => toggleSection('trip4')}
@@ -446,7 +428,7 @@ export default function ExpenseForm({
                 amountLabel="Monto Alimentación"
                 receipt={formData.foodReceipt}
                 amount={formData.foodAmount}
-                onReceiptChange={(receipt) => setFormData(prev => ({ ...prev, foodReceipt: receipt }))}
+                onReceiptChange={(receipt) => setFormData(prev => ({ ...prev, foodReceipt: receipt, foodAmount: receipt ? prev.foodAmount : '' }))}
                 onAmountChange={(amount) => setFormData(prev => ({ ...prev, foodAmount: amount }))}
                 isExpanded={expandedSections.food || false}
                 onToggle={() => toggleSection('food')}
@@ -463,7 +445,7 @@ export default function ExpenseForm({
                 amountLabel="Monto Alojamiento"
                 receipt={formData.accommodationReceipt}
                 amount={formData.accommodationAmount}
-                onReceiptChange={(receipt) => setFormData(prev => ({ ...prev, accommodationReceipt: receipt }))}
+                onReceiptChange={(receipt) => setFormData(prev => ({ ...prev, accommodationReceipt: receipt, accommodationAmount: receipt ? prev.accommodationAmount : '' }))}
                 onAmountChange={(amount) => setFormData(prev => ({ ...prev, accommodationAmount: amount }))}
                 isExpanded={expandedSections.accommodation || false}
                 onToggle={() => toggleSection('accommodation')}
@@ -476,35 +458,16 @@ export default function ExpenseForm({
             </div>
             
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t">
-              <div className="flex-1">
-                {lastSaved && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    Guardado automáticamente: {lastSaved.toLocaleTimeString()}
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleSave}
-                  data-testid="button-save-draft"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Guardar Borrador
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={!mandatoryComplete || isSubmitting}
-                  data-testid="button-submit"
-                >
-                  <Send className="h-4 w-4 mr-2" />
-                  {isSubmitting ? (uploadProgress || "Enviando...") : "Enviar"}
-                </Button>
-              </div>
+            <div className="flex justify-end pt-6 border-t">
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                disabled={!mandatoryComplete || isSubmitting}
+                data-testid="button-submit"
+              >
+                <Send className="h-4 w-4 mr-2" />
+                {isSubmitting ? (uploadProgress || "Enviando...") : "Enviar"}
+              </Button>
             </div>
           </div>
           

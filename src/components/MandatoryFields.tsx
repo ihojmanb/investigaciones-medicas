@@ -72,7 +72,7 @@ export default function MandatoryFields({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <Label htmlFor="patient" className="text-sm font-medium">
               Paciente *
@@ -95,7 +95,7 @@ export default function MandatoryFields({
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
+              <PopoverContent className="w-full max-h-[300px] p-0" side="bottom" align="start">
                 <Command>
                   <CommandInput placeholder="Buscar paciente..." />
                   <CommandList>
@@ -148,7 +148,7 @@ export default function MandatoryFields({
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
+              <PopoverContent className="w-full max-h-[300px] p-0" side="bottom" align="start">
                 <Command>
                   <CommandInput placeholder="Buscar ensayo clínico..." />
                   <CommandList>
@@ -180,7 +180,7 @@ export default function MandatoryFields({
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <Label htmlFor="visit" className="text-sm font-medium">
               Visita *
@@ -198,7 +198,7 @@ export default function MandatoryFields({
                   "Selecciona una visita"
                 } />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent side="bottom" position="popper" className="max-h-[300px]">
                 {eligibleVisits
                   .filter(v => mode === 'edit' ? v.is_completed : true)
                   .map((v) => (
@@ -229,7 +229,7 @@ export default function MandatoryFields({
                   {visitDate ? format(visitDate, "dd-MM-yyyy") : "Seleccionar fecha"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-0" side="bottom" align="start">
                 <Calendar
                   mode="single"
                   selected={visitDate}

@@ -4,13 +4,11 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table"
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -22,26 +20,60 @@ import {
   Plus, 
   MoreHorizontal, 
   Edit, 
-  Eye, 
   Receipt,
   User,
-  Calendar
+  Calendar,
+  ExternalLink
 } from "lucide-react"
 import { usePatients } from "@/hooks/usePatients"
-import { useTrials } from "@/hooks/useTrials"
 import { getPatientExpenses, PatientExpenseWithDetails } from "@/services/patientExpenseService"
 import { format } from "date-fns"
 import { formatPatientName } from "@/services/patientService"
-import { Patient } from "@/types/database"
+import supabase from "@/lib/supabaseClient"
+
+const EXPENSE_TYPE_MAPPING = {
+  'transport': 'Transporte',
+  'trip1': 'Pasaje 1',
+  'trip2': 'Pasaje 2',
+  'trip3': 'Pasaje 3',
+  'trip4': 'Pasaje 4',
+  'food': 'Alimentacion',
+  'accommodation': 'Alojamiento'
+} as const
+
+const formatChileanPesos = (amount: number): string => {
+  return `$${amount.toLocaleString('es-CL')} CLP`
+}
+
+const formatDateLocal = (dateString: string): string => {
+  const date = new Date(dateString)
+  return format(date, 'dd/MM/yyyy HH:mm')
+}
+
+const getExpenseTypeLabel = (type: string): string => {
+  return EXPENSE_TYPE_MAPPING[type as keyof typeof EXPENSE_TYPE_MAPPING] || type
+}
 
 export default function PatientDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { patients, loading: patientsLoading } = usePatients()
-  const { trials } = useTrials()
   const [expenses, setExpenses] = useState<PatientExpenseWithDetails[]>([])
   const [expensesLoading, setExpensesLoading] = useState(true)
 
-  const patient = patients.find(p => p.id === id)
+  const patient = patients.find(p => p.id === id);
+
+  const handleReceiptClick = async (receipt_url: string) => {
+    const { data, error } = await supabase.storage
+      .from('expenses')
+      .createSignedUrl(receipt_url, 3600)
+    if (error) {
+      console.error('Error creating signed URL:', error)
+      return
+    }
+    if (data?.signedUrl) {
+      window.open(data.signedUrl, '_blank')
+    }
+  }
 
   useEffect(() => {
     if (id) {
@@ -121,6 +153,8 @@ export default function PatientDetailPage() {
     return <div>Patient not found</div> // or redirect/error handling
   }
   else {
+
+
 
     return (
       <div className="space-y-6">
@@ -219,77 +253,94 @@ export default function PatientDetailPage() {
                 </Button>
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Trial</TableHead>
-                    <TableHead>Visit</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Items</TableHead>
-                    <TableHead>Total Amount</TableHead>
-                    <TableHead>Last Modified</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {expenses.map((expense) => (
-                    <TableRow key={expense.id}>
-                      <TableCell>
-                        <Badge variant="secondary">
-                          {expense.trial?.name || 'Unknown Trial'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {expense.visit_type}
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(expense.visit_date), 'MMM d, yyyy')}
-                      </TableCell>
-                      <TableCell>
-                        {getExpenseItemsCount(expense)} items
-                      </TableCell>
-                      <TableCell>
-                        ${getTotalAmount(expense).toLocaleString('es-CL')}
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div>{format(new Date(expense.modified_at || expense.created_at), 'MMM d, yyyy')}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {format(new Date(expense.modified_at || expense.created_at), 'HH:mm')}
+              <Accordion type="multiple" className="w-full space-y-2">
+                {expenses.map((expense) => (
+                  <AccordionItem key={expense.id} value={expense.id} className="border rounded-lg">
+                    <AccordionTrigger className="px-4 py-3 hover:bg-gray-50">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full text-left pr-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                          <Badge variant="secondary" className="self-start">
+                            {expense.trial?.name || 'Unknown Trial'}
+                          </Badge>
+                          <div className="text-sm font-medium">
+                            {expense.visit_type}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {format(new Date(expense.visit_date), 'MMM d, yyyy')}
                           </div>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">Submitted</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <Link to={`/expenses/${expense.id}`}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link to={`/expenses/${expense.id}/edit`}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit Expense
-                              </Link>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 sm:mt-0">
+                          <div className="text-sm">
+                            {getExpenseItemsCount(expense)} items
+                          </div>
+                          <div className="text-sm font-medium">
+                            {formatChileanPesos(getTotalAmount(expense))}
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem asChild>
+                                <Link to={`/expenses/${expense.id}/edit`}>
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Edit Expense
+                                </Link>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 pb-4">
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center text-sm text-muted-foreground border-b pb-2">
+                          <span>Last Modified: {formatDateLocal(expense.modified_at || expense.created_at)}</span>
+                          <Badge variant="outline">Submitted</Badge>
+                        </div>
+                        {expense.expense_items.length === 0 ? (
+                          <div className="text-center py-6 text-muted-foreground">
+                            No expense items found
+                          </div>
+                        ) : (
+                          <div className="grid gap-3">
+                            {expense.expense_items.map((item) => (
+                              <Card key={item.id} className="p-4 bg-gray-50">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                  <div className="flex flex-col gap-1">
+                                    <div className="font-medium text-sm">
+                                      {getExpenseTypeLabel(item.type)}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      Modified: {formatDateLocal(item.modified_at)}
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                                    <div className="font-medium">
+                                      {formatChileanPesos(item.cost)}
+                                    </div>
+                                    {item.receipt_url && (
+                                      <Button variant="outline" size="sm"
+                                        onClick={() => handleReceiptClick(item.receipt_url!)}
+                                      >
+            
+                                          <ExternalLink className="h-3 w-3" />
+                                          ver archivo
+                                      </Button>
+                                    )}
+                                  </div>
+                                </div>
+                              </Card>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
             )}
           </CardContent>
         </Card>

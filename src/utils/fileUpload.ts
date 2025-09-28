@@ -67,14 +67,9 @@ export const uploadReceiptFile = async (
 
     console.log('✅ Upload successful:', data)
 
-    // Get public URL
-    console.log('🔗 Getting public URL for path:', data.path)
-    const { data: urlData } = supabase.storage
-      .from('expenses')
-      .getPublicUrl(data.path)
-
-    console.log('🌐 Generated public URL:', urlData.publicUrl)
-    return { url: urlData.publicUrl, error: null }
+    // Return the file path (not the full URL) so it can be used with createSignedUrl
+    console.log('📁 Returning file path for storage:', data.path)
+    return { url: data.path, error: null }
   } catch (error) {
     console.error('💥 Unexpected error during file upload:', error)
     return { 

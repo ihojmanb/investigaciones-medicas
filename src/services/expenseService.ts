@@ -1,6 +1,4 @@
 import { supabase } from '@/lib/supabaseClient'
-import { PatientExpense, ExpenseItem } from '@/types/database'
-import { uploadReceiptFile } from '@/utils/fileUpload'
 import { canPatientRegisterVisit } from './visitService'
 
 export interface ExpenseFormData {
