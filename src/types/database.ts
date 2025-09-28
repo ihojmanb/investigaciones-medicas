@@ -61,6 +61,7 @@ export interface ServiceAllocation {
   name: string
   amount: number
   currency: 'USD' | 'CLP'
+  allocation_type: 'principal_investigator' | 'sub_investigator'
   created_at: string
   updated_at: string
 }

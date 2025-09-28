@@ -1,0 +1,145 @@
+Service Allocations Testing Notes
+
+Database Migration Testing
+[x] Run migration: `supabase migration repair 20250928120001` if needed
+[x] Verify `allocation_type` column exists in `service_allocations` table
+[x] Test constraint: Try creating allocation on non-visit service (should fail)
+
+Business Logic Testing
+
+Non-Visit Services
+[x] Create a trial service with `is_visit = false`
+[x] Verify "Prestaciones del Servicio" section is hidden
+[x] Verify message shows: "Las prestaciones solo están disponibles para servicios de visita"
+[x] Confirm no "Agregar Prestación" button appears
+
+Visit Services - Empty State
+[x] Create a trial service with `is_visit = true`
+[x] Verify "Prestaciones del Servicio" section appears
+[x] Verify "Agregar Prestación" button is visible
+[ ] Confirm allocation count shows "(0/2 prestaciones)"
+
+Allocation Type Selection
+[x] Click "Agregar Prestación" on visit service
+[x] Verify "Tipo de Investigador" dropdown appears
+[x] Confirm options: "Investigador Principal" and "Sub-Investigador"
+[x] Test creating allocation with each type
+[x] Verify Spanish labels display correctly
+
+Business Rule: Maximum 1 Per Type (not the case anymore since we can have more than one sub invsetigator)
+[x] Create "Investigador Principal" allocation
+[x] Try to create another "Investigador Principal" (should be disabled in dropdown)
+[ ] Verify only "Sub-Investigador" option remains available
+[ ] Create "Sub-Investigador" allocation
+[ ] Verify "Agregar Prestación" button disappears (2/2 limit reached)
+
+Allocation Display
+[x] Verify allocation shows investigator type badge
+[x] Confirm badge text: "Investigador Principal" or "Sub-Investigador"
+[x] Test allocation amount and currency display
+[x] Verify edit and delete buttons work
+
+Edit Allocation Functionality
+[x] Edit existing "Investigador Principal" allocation
+[x] Verify dropdown shows available types (should include current type + unused type)
+[x] Change from PI to Sub-I (if Sub-I slot is empty)
+[x] Verify changes save correctly
+[x] Test validation prevents changing to occupied type
+
+Error Handling
+[x] Test form validation with empty allocation name
+[x] Test amount validation (must be > 0, <= remaining service amount)
+[x] Verify currency consistency with parent service
+[ ] Test network error scenarios
+
+UI/UX Testing
+
+Spanish Localization
+[x] Verify all labels are in Spanish:
+  "Prestaciones del Servicio"
+  "Agregar Prestación"
+  "Tipo de Investigador"
+  "Investigador Principal"
+  "Sub-Investigador"
+  "Nombre de la Prestación"
+  Error messages in Spanish
+
+Responsive Design
+[x] Test on mobile - allocation form layout
+[x] Verify badges wrap correctly on small screens
+[x] Test dropdown functionality on mobile
+[x] Confirm button layouts work on different screen sizes
+
+Visual Feedback
+[x] Allocation type badges use correct styling (secondary variant)
+[x] Amount badges use outline styling
+[x] Service expansion/collapse works smoothly
+[x] Loading states during allocation CRUD operations
+
+Integration Testing
+
+Service-Allocation Relationship
+[x] Delete service with allocations - verify cascading delete
+[ ] Update service amount - verify allocation validation still works
+[x] Change service from visit to non-visit - verify allocations become inaccessible
+
+Trial Management Integration
+[ ] Create trial → add services → add allocations (full flow)
+[ ] Edit trial services with existing allocations
+[ ] Verify permissions (admin-only access to fee schedule)
+
+Edge Cases
+
+Data Consistency
+[ ] Service with 1 PI allocation - verify can add Sub-I
+[ ] Service with 1 Sub-I allocation - verify can add PI
+[ ] Service with both types - verify no "Agregar" button
+[ ] Edit allocation type to create conflict - should prevent/handle gracefully
+
+Amount Validation
+[ ] Total allocations = service amount (fully allocated)
+[ ] Total allocations < service amount (partially allocated)
+[ ] Try to allocate more than remaining amount (should fail)
+[ ] Edit allocation amount beyond remaining capacity
+
+Database Validation
+
+Constraint Testing
+[ ] Direct DB insert: allocation on non-visit service (should fail)
+[ ] Direct DB insert: duplicate allocation type (should fail)
+[ ] Direct DB update: change allocation_type to create duplicate (should fail)
+[ ] Verify cascade delete works from service to allocations
+
+Performance
+[ ] Test with trial having many services (10+)
+[ ] Test with service having maximum allocations
+[ ] Verify query performance with filtering and joins
+
+Accessibility Testing
+[ ] Form labels properly associated with inputs
+[ ] Dropdown keyboard navigation works
+[ ] Error messages announced by screen readers
+[ ] Focus management in allocation forms
+
+Browser Testing
+[ ] Chrome: All functionality works
+[ ] Firefox: Dropdown and form behavior
+[ ] Safari: Spanish characters display correctly
+[ ] Edge: Complete user flow
+
+Regression Testing
+[ ] Existing trials/services still work
+[ ] Non-allocation features unaffected
+[ ] User permissions still enforced
+[ ] Other CRUD operations (patients, expenses) unaffected
+
+Success Criteria
+✅ Non-visit services: No allocation interface
+✅ Visit services: Full allocation management with Spanish labels
+✅ Maximum 1 allocation per investigator type per service
+✅ Database constraints prevent invalid data
+✅ UI clearly shows investigator types in Spanish
+✅ Form validation prevents business rule violations
+✅ Existing functionality remains intact
+
+add esbuild to the vite config to remove console statements

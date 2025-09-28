@@ -11,6 +11,7 @@ interface ServiceAllocationFormProps {
   allocation?: ServiceAllocation
   maxAmount: number
   currency: 'USD' | 'CLP'
+  existingAllocations?: ServiceAllocation[]
   onSubmit: (data: ServiceAllocationFormData) => Promise<void>
   onCancel: () => void
 }
@@ -19,13 +20,15 @@ export default function ServiceAllocationForm({
   allocation, 
   maxAmount, 
   currency, 
+  existingAllocations = [],
   onSubmit, 
   onCancel 
 }: ServiceAllocationFormProps) {
   const [formData, setFormData] = useState<ServiceAllocationFormData>({
     name: allocation?.name || "",
     amount: allocation?.amount?.toString() || "",
-    currency: allocation?.currency || currency
+    currency: allocation?.currency || currency,
+    allocation_type: allocation?.allocation_type || 'principal_investigator'
   })
   const [saving, setSaving] = useState(false)
 
@@ -73,6 +76,41 @@ export default function ServiceAllocationForm({
             placeholder="Ingresa el nombre de la prestación"
             required
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="allocation-type">Tipo de Investigador *</Label>
+          <Select 
+            value={formData.allocation_type} 
+            onValueChange={(value: 'principal_investigator' | 'sub_investigator') => handleInputChange('allocation_type', value)}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {(() => {
+                const existingTypes = existingAllocations.map(a => a.allocation_type)
+                const availableTypes = []
+                
+                if (!existingTypes.includes('principal_investigator')) {
+                  availableTypes.push(
+                    <SelectItem key="principal_investigator" value="principal_investigator">
+                      Investigador Principal
+                    </SelectItem>
+                  )
+                }
+                
+                // Always allow Sub-Investigator (multiple allowed)
+                availableTypes.push(
+                  <SelectItem key="sub_investigator" value="sub_investigator">
+                    Sub-Investigador
+                  </SelectItem>
+                )
+                
+                return availableTypes
+              })()}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="grid grid-cols-2 gap-4">

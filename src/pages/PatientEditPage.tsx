@@ -35,17 +35,17 @@ export default function PatientEditPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Edit Patient"
-          subtitle="Modify patient information"
+          title="Editar Paciente"
+          subtitle="Modificar información del paciente"
           backButton={{
-            label: "Back to Patients",
+            label: "Volver a Pacientes",
             icon: <ArrowLeft className="w-4 h-4" />,
             onClick: () => navigate("/patients")
           }}
         />
         
         <div className="text-center py-12">
-          <p className="text-gray-500">Loading patient...</p>
+          <p className="text-gray-500">Cargando datos del paciente...</p>
         </div>
       </div>
     )
@@ -55,17 +55,17 @@ export default function PatientEditPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Edit Patient"
-          subtitle="Modify patient information"
+          title="Editar Paciente"
+          subtitle="Modificar información del paciente"
           backButton={{
-            label: "Back to Patients",
+            label: "Volver a Pacientes",
             icon: <ArrowLeft className="w-4 h-4" />,
             onClick: () => navigate("/patients")
           }}
         />
         
         <div className="text-center py-12">
-          <p className="text-red-500">{error || 'Patient not found'}</p>
+          <p className="text-red-500">{error || 'Paciente no encontrado'}</p>
         </div>
       </div>
     )
@@ -74,10 +74,10 @@ export default function PatientEditPage() {
   return (
     <div>
       <PageHeader
-        title="Edit Patient"
-        subtitle="Modify patient information"
+        title="Editar Paciente"
+        subtitle="Modificar información del paciente"
         backButton={{
-          label: "Back to Patients",
+          label: "Volver a Pacientes",
           icon: <ArrowLeft className="w-4 h-4" />,
           onClick: () => navigate("/patients")
         }}

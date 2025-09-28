@@ -159,29 +159,39 @@ export default function PatientDetailPage() {
     return (
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+        <div className="space-y-4">
+          <div className="flex items-center">
             <Button variant="ghost" asChild>
               <Link to="/patients">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Volver a Pacientes
               </Link>
             </Button>
-            
+          </div>
+          
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 {formatPatientName(patient)}
               </h1>
               <p className="text-gray-600">Código del Paciente: {patient?.code}</p>
             </div>
+            
+            <div className="flex justify-between">
+              <Button asChild>
+                <Link to="/expenses/new">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nuevo Gasto
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to={`/patients/${patient.id}/edit`}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Editar Paciente
+                </Link>
+              </Button>
+            </div>
           </div>
-  
-          <Button asChild>
-            <Link to="/expenses/new">
-              <Plus className="w-4 h-4 mr-2" />
-              Nuevo Gasto
-            </Link>
-          </Button>
         </div>
   
         {/* Patient Info Cards */}

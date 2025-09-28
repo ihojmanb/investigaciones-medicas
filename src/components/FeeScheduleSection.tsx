@@ -207,7 +207,7 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
                                 Asignado: {formatCurrency(totalAllocated, service.currency)} {service.currency}
                               </Badge>
                               <span className="text-sm text-gray-500">
-                                ({allocationsCount}/2 prestaciones)
+                                ({allocationsCount} prestaciones)
                               </span>
                             </div>
                           </div>
@@ -234,26 +234,36 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
 
                     <CollapsibleContent>
                       <div className="px-4 pb-4 border-t">
-                        <div className="mt-4 space-y-3">
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                            <h5 className="font-medium text-sm">Prestaciones del Servicio</h5>
-                            {allocationsCount < 2 && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setEditingAllocation({ serviceId: service.id })}
-                                className="self-start sm:self-auto"
-                              >
-                                <Plus className="w-4 h-4 mr-2" />
-                                Agregar Prestación
-                              </Button>
-                            )}
-                          </div>
+                        {/* Only show allocations for visit services */}
+                        {service.is_visit ? (
+                          <div className="mt-4 space-y-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                              <h5 className="font-medium text-sm">Prestaciones del Servicio</h5>
+                              {(() => {
+                                const existingTypes = service.allocations?.map(a => a.allocation_type) || []
+                                const canAddPI = !existingTypes.includes('principal_investigator')
+                                const canAddSubI = true // Always can add Sub-Investigators
+                                const canAddAny = canAddPI || canAddSubI
+                                
+                                return canAddAny && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setEditingAllocation({ serviceId: service.id })}
+                                    className="self-start sm:self-auto"
+                                  >
+                                    <Plus className="w-4 h-4 mr-2" />
+                                    Agregar Prestación
+                                  </Button>
+                                )
+                              })()}
+                            </div>
 
                           {editingAllocation?.serviceId === service.id && !editingAllocation.allocation && (
                             <ServiceAllocationForm
                               maxAmount={service.amount - totalAllocated}
                               currency={service.currency}
+                              existingAllocations={service.allocations || []}
                               onSubmit={handleCreateAllocation}
                               onCancel={() => setEditingAllocation(null)}
                             />
@@ -268,6 +278,7 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
                                       allocation={allocation}
                                       maxAmount={service.amount - totalAllocated + allocation.amount}
                                       currency={service.currency}
+                                      existingAllocations={service.allocations?.filter(a => a.id !== allocation.id) || []}
                                       onSubmit={handleUpdateAllocation}
                                       onCancel={() => setEditingAllocation(null)}
                                     />
@@ -275,6 +286,9 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
                                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-gray-50 rounded-lg">
                                       <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                         <span className="font-medium break-words">{allocation.name}</span>
+                                        <Badge variant="secondary" className="text-xs self-start">
+                                          {allocation.allocation_type === 'principal_investigator' ? 'Investigador Principal' : 'Sub-Investigador'}
+                                        </Badge>
                                         <Badge variant="outline" className="text-xs self-start">
                                           {formatCurrency(allocation.amount, allocation.currency)} {allocation.currency}
                                         </Badge>
@@ -308,7 +322,12 @@ export default function FeeScheduleSection({ trialId, services, onServicesUpdate
                               Aún no se han agregado prestaciones
                             </div>
                           )}
-                        </div>
+                          </div>
+                        ) : (
+                          <div className="mt-4 text-center py-4 text-gray-500 text-sm">
+                            Las prestaciones solo están disponibles para servicios de visita
+                          </div>
+                        )}
                       </div>
                     </CollapsibleContent>
                   </div>

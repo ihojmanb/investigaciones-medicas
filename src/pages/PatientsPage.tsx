@@ -87,7 +87,7 @@ export default function PatientsPage() {
         />
 
       {/* Search - Keep the search bar below the header */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4 mb-4">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
@@ -215,13 +215,13 @@ export default function PatientsPage() {
                       <DropdownMenuItem asChild>
                         <Link to={`/patients/${patient.id}`}>
                           <Eye className="mr-2 h-4 w-4" />
-                          View Details
+                          Ver Detalles
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link to={`/patients/${patient.id}/edit`}>
                           <Edit className="mr-2 h-4 w-4" />
-                          Edit Patient
+                          Editar Paciente
                         </Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>

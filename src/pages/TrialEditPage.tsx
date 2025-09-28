@@ -135,10 +135,10 @@ export default function TrialEditPage() {
   return (
     <div>
       <PageHeader
-        title="Edit Trial"
-        subtitle="Modify trial information"
+        title="Editar Estudio Clínico"
+        subtitle="Modificar información del estudio"
         backButton={{
-          label: "Back to Trials",
+          label: "Volver a Estudios Clínicos",
           icon: <ArrowLeft className="w-4 h-4" />,
           onClick: () => navigate("/trials")
         }}

@@ -49,35 +49,39 @@ export default function PageHeader({
     <>
       {/* Original Header */}
       <div ref={headerRef} className={cn("pb-4", className)}>
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div className="flex-1 min-w-0">
-            {backButton && (
-              <Button 
-                variant="ghost" 
-                onClick={backButton.onClick}
-                className="mb-2 p-2 -ml-2"
-              >
-                {backButton.icon}
-                <span className="ml-2">{backButton.label}</span>
-              </Button>
-            )}
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 break-words">
-                {title}
-              </h1>
-              {subtitle && (
-                <p className="text-gray-600 mt-1 break-words">
-                  {subtitle}
-                </p>
+        <div className="space-y-4 mb-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              {backButton && (
+                <Button 
+                  variant="ghost" 
+                  onClick={backButton.onClick}
+                  className="mb-2 p-2 -ml-2"
+                >
+                  {backButton.icon}
+                  <span className="ml-2">{backButton.label}</span>
+                </Button>
               )}
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 break-words">
+                  {title}
+                </h1>
+                {subtitle && (
+                  <p className="text-gray-600 mt-1 break-words">
+                    {subtitle}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
           
           {action && (
-            <Button onClick={action.onClick} className="flex-shrink-0">
-              {action.icon}
-              <span className="ml-2">{action.label}</span>
-            </Button>
+            <div className="flex justify-end">
+              <Button onClick={action.onClick}>
+                {action.icon}
+                <span className="ml-2">{action.label}</span>
+              </Button>
+            </div>
           )}
         </div>
       </div>

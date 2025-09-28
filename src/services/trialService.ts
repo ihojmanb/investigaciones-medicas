@@ -24,6 +24,7 @@ export interface ServiceAllocationFormData {
   name: string
   amount: string
   currency: 'USD' | 'CLP'
+  allocation_type: 'principal_investigator' | 'sub_investigator'
 }
 
 export interface TrialWithServices extends Trial {
@@ -220,7 +221,8 @@ export async function createServiceAllocation(serviceId: string, allocationData:
         trial_service_id: serviceId,
         name: allocationData.name,
         amount: parseFloat(allocationData.amount),
-        currency: allocationData.currency
+        currency: allocationData.currency,
+        allocation_type: allocationData.allocation_type
       })
       .select()
       .single()
@@ -240,7 +242,8 @@ export async function updateServiceAllocation(id: string, allocationData: Servic
       .update({
         name: allocationData.name,
         amount: parseFloat(allocationData.amount),
-        currency: allocationData.currency
+        currency: allocationData.currency,
+        allocation_type: allocationData.allocation_type
       })
       .eq('id', id)
 
